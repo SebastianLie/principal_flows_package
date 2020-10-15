@@ -2,8 +2,10 @@ import numpy as np
 import pandas as pd
 import scipy
 import math
-from common_methods_sphere import *
-from centroid_finder import *
+from common_methods_sphere import log_map_sphere, exp_map_sphere
+from common_methods_sphere import spherical_to_cartesian, generate_square, test_eig_diff
+from common_methods_sphere import get_pairwise_distances, angle
+from centroid_finder import compute_principal_component_vecs
 
 ##################
 # Kernel Methods #

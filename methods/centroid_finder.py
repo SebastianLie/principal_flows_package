@@ -4,11 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 from mpl_toolkits.mplot3d import Axes3D
 import scipy
-from common_methods_sphere import *
-
-'''
-Sphere - PGA
-'''
+from common_methods_sphere import log_map_sphere, exp_map_sphere, spherical_to_cartesian, generate_square, test_eig_diff
 
 ################################
 # Principal Geodesic functions #
@@ -56,7 +52,7 @@ def compute_principal_component_points(points):
     '''
     dimension_means = np.mean(points.T, axis=1)
     centered_data = points - dimension_means
-    U, S, Vt = linalg.svd(centered_data, full_matrices=False)
+    U, S, Vt = scipy.linalg.svd(centered_data, full_matrices=False)
     # this chunk flips sign of the svd
     max_abs_cols = np.argmax(np.abs(U), axis=0)
     signs = np.sign(U[max_abs_cols, range(U.shape[1])])
@@ -145,10 +141,15 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
     Works!
     Idea: 
     1. Takes in the data, then chooses the first point in the dataset as the 
-    pseudo-center.
+    pseudo-center, p.
     2. Calculate the log map of p on these points, to obtain the vectors residing on the plane 
-    tangent to the sphere at p.
-    3. 
+    tangent to the sphere at p and put them into a matrix, X.
+    3. Find the eigen vector (principal component) of the matrix X using the method above (SVD on X) with the largest 
+    eigen value(largest portion of explained variance).
+    4. Move a small step (epsilon) in the direction of the principal component from p.
+    5. Project this point back on the sphere w the exp map.
+    6. Call this the new p. 
+    7. Repeat until max iter is hit or until gaps between eigen values become smaller than the tolerance.
     '''
     # choose p, and get the array of points that exclude p.
     data = np.array(data)
