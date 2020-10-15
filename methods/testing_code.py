@@ -9,6 +9,8 @@ import scipy
 import math
 import os
 from common_methods_sphere import *
+from principal_flow import *
+from centroid_finder import *
 
 
 def test_pairwise_distances(points, p, tol=0.01):
@@ -87,28 +89,7 @@ def compute_principal_component(points):
     # reverse = True means sort by descending!
     eig_tuples = sorted(eig_tuples, reverse=True)
     return S[0], Vt[0]
-    
-def compute_principal_component_vecs(vectors, p):
-    # works now AHHHH yay so glad it does what I want.
-    '''
-    1)      v_j =Log_p(p_j), 1<=j<=n
-    2)      V=[v_1’,v_2,…v_n]
-    3)      Do eigen on V’V/n-1, find the e_1 (the eigenvector associated with the largest eigen value)
-    4)      Update p<-p+\epsilon e_1
-    5)      Repeat
-    '''
-    # vectors currently rows, need to transform to columns!
-    # svd here since X is like the 'centered data', the data minus the estimated mean which is p.
-    X = vectors
-    U, S, Vt = scipy.linalg.svd(X, full_matrices=False)
-    max_abs_cols = np.argmax(np.abs(U), axis=0)
-    #print(max_abs_cols)
-    #print(U[max_abs_cols, range(U.shape[1])])
-    signs = np.sign(U[max_abs_cols, range(U.shape[1])])
-    #print(signs[:, np.newaxis])
-    Vt *= signs[:, np.newaxis]
 
-    return S, Vt[0]
 
 def compute_principal_component_vecs_old(vectors, p):
     '''
@@ -134,205 +115,6 @@ def compute_principal_component_vecs_old(vectors, p):
 
     return sorted(eig_values,reverse=True), vec
 
-def compute_principal_component_vecs_weighted(vectors, p, weights):
-    X = vectors
-    n = len(vectors)
-    covar_mat = np.zeros((X.shape[1],X.shape[1]))
-    for i in range(n):
-        covar_mat += np.multiply(np.outer(X[i,:], X[i,:]), weights[i])
-    covar_mat /= sum(weights)
-    print(covar_mat)
-
-    eig_values, eig_vectors = np.linalg.eig(covar_mat)
-    eig_tuples = list(zip(eig_values, eig_vectors.T))
-    eig_tuples = sorted(eig_tuples, reverse=True)
-    return eig_values, eig_tuples[0][1]
-
-def principal_flow_weighted(centroid, data, epsilon, tol=1e-2):
-    data = np.array(data)
-    if data.shape[1] != 3:
-        data = data.T
-    h = 0.5
-    points_on_sphere = data
-    p = centroid
-    p_opp = p
-    curve = np.array(centroid)
-    num_iter = 0
-    while True:
-        num_iter += 1
-        if num_iter == 1:
-            w = gaussian_kernel(h, points_on_sphere, p)
-            plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
-            eig_values, principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, w)
-            principal_direction_opp = - principal_direction
-        
-        else:
-            # calculate for one direction, then the other 
-            w = gaussian_kernel(h, points_on_sphere, p)
-            plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
-            past_direction = principal_direction
-            eig_values, principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, w)
-            # make sure same direction
-            if angle(past_direction, principal_direction) > math.pi/2:
-                principal_direction = -principal_direction
-            
-            w_opp = gaussian_kernel(h, points_on_sphere, p_opp)
-            plane_vectors_opp = np.array(list(map(lambda point: log_map_sphere(p_opp, point), points_on_sphere)))
-            past_direction_opp = principal_direction_opp
-            eig_values, principal_direction_opp = compute_principal_component_vecs_weighted(plane_vectors_opp, p_opp, w_opp)
-            # make sure same direction
-            if angle(past_direction_opp, principal_direction_opp) > math.pi/2:
-                principal_direction_opp = -principal_direction_opp
-
-        # update 1 direction
-        p_prime_plane = p + epsilon * principal_direction
-        p_prime = exp_map_sphere(p, p_prime_plane - p)
-        p = p_prime
-
-        # then the other
-        p_prime_plane_opp = p_opp + epsilon * principal_direction_opp
-        p_prime_opp = exp_map_sphere(p_opp, p_prime_plane_opp - p_opp)
-        p_opp = p_prime_opp
-
-        # now add to the curve
-        curve = np.concatenate((curve, p))
-        curve = np.concatenate((p_opp, curve))
-
-        if test_eig_diff(eig_values, tol):
-            # gap between eigenvalues are v small
-            break
-        if num_iter > 10:
-            break
-    curve = np.reshape(curve, (-1,3))
-    return curve.T
-
-def principal_flow(centroid, data, epsilon, tol=1e-2):
-    data = np.array(data)
-    if data.shape[1] != 3:
-        data = data.T
-    h = 0.5
-    points_on_sphere = data
-    p = centroid
-    p_opp = p
-    curve = np.array(centroid)
-    num_iter = 0
-    while True:
-        num_iter += 1
-        if num_iter == 1:
-            filtered_points = binary_kernel(h, points_on_sphere, p)
-            plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), filtered_points)))
-            eig_values, principal_direction = compute_principal_component_vecs(plane_vectors, p)
-            principal_direction_opp = - principal_direction
-        
-        else:
-            # calculate for one direction, then the other 
-            filtered_points = binary_kernel(h, points_on_sphere, p)
-            plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), filtered_points)))
-            past_direction = principal_direction
-            eig_values, principal_direction = compute_principal_component_vecs(plane_vectors, p)
-            # make sure same direction
-            if angle(past_direction, principal_direction) > math.pi/2:
-                principal_direction = -principal_direction
-            
-            filtered_points_opp = binary_kernel(h, points_on_sphere, p_opp)
-            plane_vectors_opp = np.array(list(map(lambda point: log_map_sphere(p_opp, point), filtered_points_opp)))
-            past_direction_opp = principal_direction_opp
-            eig_values, principal_direction_opp = compute_principal_component_vecs(plane_vectors_opp, p_opp)
-            # make sure same direction
-            if angle(past_direction_opp, principal_direction_opp) > math.pi/2:
-                principal_direction_opp = -principal_direction_opp
-
-        # update 1 direction
-        p_prime_plane = p + epsilon * principal_direction
-        p_prime = exp_map_sphere(p, p_prime_plane - p)
-        p = p_prime
-
-        # then the other
-        p_prime_plane_opp = p_opp + epsilon * principal_direction_opp
-        p_prime_opp = exp_map_sphere(p_opp, p_prime_plane_opp - p_opp)
-        p_opp = p_prime_opp
-
-        # now add to the curve
-        curve = np.concatenate((curve, p))
-        curve = np.concatenate((p_opp, curve))
-
-        if test_eig_diff(eig_values, tol):
-            # gap between eigenvalues are v small
-            break
-        if num_iter > 10:
-            break
-    curve = np.reshape(curve, (-1,3))
-    return curve.T
-
-
-
-def binary_kernel(h, data, centroid): # works.
-    '''
-    Assumes data in (.., 3) shape
-    '''
-    dists = np.array(get_pairwise_distances(data, centroid))
-    return data[(dists < h)]
-
-def gaussian(x, centroid, h) -> int:
-    sigma = h
-    return 1/(sigma*math.sqrt(2*math.pi)) * np.exp(-np.linalg.norm(x-centroid)**2/2*sigma**2)
-
-def gaussian_kernel(h, data, centroid) -> "1d numpy array":
-    '''
-    Assumes data in (.., 3) shape,
-    i.e each row is a point
-    '''
-    return np.apply_along_axis(gaussian, 1, data, centroid, h)
-
-def multivar_gaussian_kernel(h, data, centroid):
-    '''
-    Assumes data in (.., 3) shape
-    '''
-    covar_mat = h * np.identity(3)
-    distribution = scipy.stats.multivariate_normal(mean=centroid, cov=covar_mat)
-    func = lambda point: point * distribution.pdf(point)
-    vectorised = np.vectorize(func)
-    return vectorised(data)
-
-def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
-    '''
-    Central Algorithm of this file.
-    Works!
-    Idea: 
-    1. Takes in the data, then chooses the first point in the dataset as the 
-    pseudo-center.
-    2. Calculate the log map of p on these points, to obtain the vectors residing on the plane 
-    tangent to the sphere at p.
-    3. 
-    '''
-    # choose p, and get the array of points that exclude p.
-    data = np.array(data)
-    if data.shape[1] != 3:
-        data = data.T
-    points_on_sphere = data
-    p_index =  0
-    p = points_on_sphere[p_index]
-
-    num_iter = 0
-    while True:
-        num_iter += 1
-        plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
-        eig_values, principal_direction = compute_principal_component_vecs(plane_vectors, p)
-        #print(principal_direction)
-        p_prime_plane = p + epsilon * principal_direction
-        p_prime = exp_map_sphere(p, p_prime_plane - p)
-        # print(np.linalg.norm(p_prime))
-        p = p_prime
-        if test_eig_diff(eig_values, tol):
-            # gap between eigenvalues are v small
-            break
-        if num_iter > 100:
-            break
-        if debugging:
-            return points_on_sphere.T, p_prime
-    return p, num_iter, points_on_sphere.T
-
-
 def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
     '''
     0. General some points in advance including p.
@@ -344,7 +126,7 @@ def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
     6. project that point back onto the sphere
     7. repeat step 2 onwards
 
-    Use \epsilon* V+p to move. Set \epsilon to be a small number.
+    Use epsilon* V+p to move. Set epsilon to be a small number.
 
     You don’t move when V is small in the sense its correspond eigenvalue is tiny.
 
@@ -365,8 +147,6 @@ def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
     where tangent vector = point on plane - p, p is base point for the tangent plane
     since point on plane - p is the vector that points from p, the base point of the tangent
     plane to the point we want to project.
-
-
     '''
     # generate points and check that points generated are on the sphere
     points_on_sphere = generate_square()
@@ -432,8 +212,8 @@ def testing():
 def testing_single():
 
     import glob 
-    filenames = glob.glob('*.csv')
-    for name in filenames[:1]:
+    filenames = glob.glob('Sample_Data/*.csv')
+    for name in filenames[4:5]:
         # ['data1.csv', 'data10.csv', 'data11.csv', 'data12.csv', 'data13.csv', 'data14.csv', 'data2.csv', 'data3.csv', 'data4.csv', 'data5.csv', 'data7.csv', 'data8.csv', 'data9.csv']
         data = pd.read_csv(name)
         data_np = data.to_numpy()
@@ -441,6 +221,7 @@ def testing_single():
         random.seed(999)
 
         final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
+        print(final_p)
         print(num_iter)
 
         phi = np.linspace(0, np.pi, 20)
@@ -464,9 +245,9 @@ def testing_flow():
     data_np = (data_np.T[1:]).T
     random.seed(999)
 
-    final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.01, 0.01)
+    final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
     
-    curve = principal_flow_weighted(final_p, data_np, 0.1, tol=1e-2)
+    curve = principal_flow(final_p, data_np, 0.1, tol=1e-2)
     x_curve, y_curve, z_curve = curve
    
     phi = np.linspace(0, np.pi, 20)
@@ -484,7 +265,8 @@ def testing_flow():
 
     plt.show()
 
-testing()
+testing_flow()
+
 '''
 print(os.path.abspath(os.curdir))
 os.chdir("..")

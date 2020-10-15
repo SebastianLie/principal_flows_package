@@ -75,7 +75,8 @@ def compute_principal_component_vecs(vectors, p):
     Yes, this is basically the output of the log map
     of p for each data point. Thus the centered data can 
     simply be replaced with the matrix of the vectors obtained 
-    from the log map of p on all data points, using p as the pseudo-center.
+    from the log map of p on all data points, using p as the
+     pseudo-center.
     Then we call SVD on the vectors which is the centered data, and sign flip.
     1)      v_j =Log_p(p_j), 1<=j<=n
     2)      V=[v_1’,v_2',…v_n']
@@ -90,7 +91,6 @@ def compute_principal_component_vecs(vectors, p):
     max_abs_cols = np.argmax(np.abs(U), axis=0)
     signs = np.sign(U[max_abs_cols, range(U.shape[1])])
     Vt *= signs[:, np.newaxis]
-
     return S, Vt[0]
 
 def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
@@ -138,6 +138,7 @@ def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
             break
     return p, num_iter, points_on_sphere.T
 
+
 def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
     '''
     Central Algorithm of this file.
@@ -170,11 +171,12 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
         if test_eig_diff(eig_values, tol):
             # gap between eigenvalues are v small
             break
-        if num_iter > 100:
+        if num_iter > 500:
             break
         if debugging:
             return points_on_sphere.T, p_prime
     return p, num_iter, points_on_sphere.T
+
 
 def sphere_centroid_finder_no_pca(epsilon, tol, num_points=4,debugging=False): # works!!
     '''

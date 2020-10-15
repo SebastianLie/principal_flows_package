@@ -1,12 +1,7 @@
 import numpy as np
-import random
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import cm, colors
-from mpl_toolkits.mplot3d import Axes3D
 import scipy
 import math
-import os
 from common_methods_sphere import *
 from centroid_finder import *
 
