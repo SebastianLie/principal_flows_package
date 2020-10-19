@@ -242,12 +242,13 @@ def testing_single():
 def testing_flow():
     data = pd.read_csv('Sample_Data/data13.csv')
     data_np = data.to_numpy()
+    
     data_np = (data_np.T[1:]).T
     random.seed(999)
 
     final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
     
-    curve = principal_flow(final_p, data_np, 0.1, tol=1e-2)
+    curve = principal_flow(final_p, data_np, 0.02, tol=1e-2)
     x_curve, y_curve, z_curve = curve
    
     phi = np.linspace(0, np.pi, 20)

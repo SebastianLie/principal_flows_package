@@ -11,8 +11,7 @@ from common_methods_sphere import log_map_sphere, exp_map_sphere, spherical_to_c
 ################################
 
 def compute_principal_component_points_inaccurate(points):
-    '''
-    Was abit wrong until compared against sklearn's PCA:
+    """Was abit wrong until compared against sklearn's PCA:
     Realised the eig vector matrix should actually be TRANSPOSED
     to find the individual eigen vectors. Original only gives  
     Finds principal component of a few points.
@@ -22,7 +21,13 @@ def compute_principal_component_points_inaccurate(points):
     4. sort the eigenvec according to eigenvalue size
     5. Return the eigenvalue, eigenvector tuple that has the largest
         eigenvalue.
-    '''
+
+    Args:
+        points (np.array, (n,p)): matrix of points on the tangent plane.
+
+    Returns:
+        float, np.array: largest eigenvalue, largest eigenvector (principal component)
+    """    
     dimension_means = np.mean(points.T, axis=1)
     centered_data = points - dimension_means
     covar_mat_centered_data = np.cov(centered_data.T)
@@ -35,8 +40,7 @@ def compute_principal_component_points_inaccurate(points):
 
 
 def compute_principal_component_points(points):
-    '''
-    Finds principal component of a few points.
+    """Finds principal component of a few points.
     1. Find the centered data
     2. Find the covariance matrix of the centered data
     3. Do the eigenvalue decomposition of the covar mat
@@ -49,7 +53,13 @@ def compute_principal_component_points(points):
     Instead, we simply apply SVD to the centered data, which is equivalent, 
     then do a sign transformation.
     Taken from sklearn's PCA implementation.
-    '''
+
+    Args:
+        points (np.array, (n,p)): matrix of points on the tangent plane.
+
+    Returns:
+        float, np.array: largest eigenvalue, largest eigenvector (principal component)
+    """    
     dimension_means = np.mean(points.T, axis=1)
     centered_data = points - dimension_means
     U, S, Vt = scipy.linalg.svd(centered_data, full_matrices=False)
@@ -61,9 +71,7 @@ def compute_principal_component_points(points):
     return S[0]**2, Vt[0]
 
 def compute_principal_component_vecs(vectors, p):
-    # works now AHHHH yay so glad it does what I want.
-    '''
-    Idea: 
+    """Idea: 
     When we center the data, we are really just obtaining the vectors
     that point from each data point to the "center" of the data, 
     i.e the vector containing the mean of each dimension. 
@@ -79,7 +87,15 @@ def compute_principal_component_vecs(vectors, p):
     3)      Do eigen on V’V/n-1, find the e_1 (the eigenvector associated with the largest eigen value)
     4)      Update p<-p+epsilon e_1
     5)      Repeat
-    '''
+
+    Args:
+        vectors (np.array, (n,p)): matrix of plane vectors.
+        p (np.array, (p,1)): centroid the vectors point from.
+
+    Returns:
+        np.array, np.array: array of eigenvalues, largest principal component
+    """    
+    # works now AHHHH yay so glad it does what I want.
     # vectors currently rows, need to transform to columns!
     # svd here since X is like the 'centered data', the data minus the estimated mean which is p.
     X = vectors
@@ -90,7 +106,7 @@ def compute_principal_component_vecs(vectors, p):
     return S, Vt[0]
 
 def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
-    '''
+    """
     0. General some points in advance including p.
     1. choose 1 of the points randomly, call it p
     2. find the tangent plane to the sphere at this point - use z coordinate and make all 
@@ -101,7 +117,17 @@ def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
     7. repeat step 2 onwards
 
     Use epsilon* V+p to move. Set epsilon to be a small number.
-    '''
+
+    Args:
+        epsilon ([type]): [description]
+        tol ([type]): [description]
+        num_points (int, optional): [description]. Defaults to 4.
+        debugging (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """   
+
     # generate points and check that points generated are on the sphere
     points_on_sphere = generate_square()
     points_on_sphere = np.asarray(points_on_sphere.T, dtype=np.float32)
@@ -136,8 +162,7 @@ def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
 
 
 def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
-    '''
-    Central Algorithm of this file.
+    """Central Algorithm of this file.
     Works!
     Idea: 
     1. Takes in the data, then chooses the first point in the dataset as the 
@@ -150,7 +175,16 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
     5. Project this point back on the sphere w the exp map.
     6. Call this the new p. 
     7. Repeat until max iter is hit or until gaps between eigen values become smaller than the tolerance.
-    '''
+
+    Args:
+        data (np.array,(n,p)): the data we want to find the centroid for.
+        epsilon (float): step size that we travel in each iteration. 
+        tol ([type]): [description]
+        debugging (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """    
     # choose p, and get the array of points that exclude p.
     data = np.array(data)
     if data.shape[1] != 3:
@@ -180,9 +214,17 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
 
 
 def sphere_centroid_finder_no_pca(epsilon, tol, num_points=4,debugging=False): # works!!
-    '''
-    takes adv of the fact that sum of plane vectors at mean will equal 0.
-    '''
+    """takes adv of the fact that sum of plane vectors at mean will equal 0.
+
+    Args:
+        epsilon ([type]): [description]
+        tol ([type]): [description]
+        num_points (int, optional): [description]. Defaults to 4.
+        debugging (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """    
     # generate points and check that points generated are on the sphere
     points_on_sphere = generate_square()
     points_on_sphere = np.asarray(points_on_sphere.T, dtype=np.float32)
