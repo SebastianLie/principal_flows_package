@@ -248,7 +248,7 @@ def testing_flow():
 
     final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
     
-    curve = principal_flow(final_p, data_np, 0.02, tol=1e-2)
+    curve = principal_flow(data_np, 0.02, 0.1, final_p,"gaussian")
     x_curve, y_curve, z_curve = curve
    
     phi = np.linspace(0, np.pi, 20)
