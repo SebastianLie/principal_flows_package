@@ -179,6 +179,10 @@ def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
             return points_on_sphere.T, p_prime
     return p, num_iter, points_on_sphere.T
 
+def add_noise_to_data(points):
+    ## TODO
+    return points
+
 def testing():
 
     import glob 
@@ -247,9 +251,27 @@ def testing_flow():
     random.seed(999)
 
     final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
+    # what's next? try make h a normalising constant
+    # make fraction in np.exp smaller to get bigger weight
+    # so bigger weight for smaller points - denominator bigger than numerator which is dist from centroid to point.
+    distances = get_pairwise_distances(data_np.T, final_p)
+    plane_vectors = np.array(list(map(lambda point: log_map_sphere(final_p, point), data_np.T)))
+    dist_and_weight = [(d, new_gaussian(point, final_p, 0.1)) for d, point in zip(distances, plane_vectors)]
+    exp_parts = [np.exp(-np.linalg.norm(x - final_p)**2) for x in plane_vectors]
+    #print(distances)
+    #print(gaussian_kernel(0.1,data_np.T,final_p))
+    print(dist_and_weight)
+    print("")
+    print(exp_parts)
+    print(sorted(dist_and_weight))
     
-    curve = principal_flow(data_np, 0.02, 0.1, final_p,"gaussian")
-    x_curve, y_curve, z_curve = curve
+    '''
+    print(final_p)
+    print(choose_h(data_np.T, final_p))
+    h = choose_h(data_np.T, final_p)
+    curve = principal_flow(data_np, 0.02, h, final_p,"binary")
+    print(curve)
+    x_curve, y_curve, z_curve = curve.T
    
     phi = np.linspace(0, np.pi, 20)
     theta = np.linspace(0, 2 * np.pi, 40)
@@ -265,7 +287,7 @@ def testing_flow():
     ax.scatter(x_curve, y_curve, z_curve, color="r", s=50)
 
     plt.show()
-
+    '''
 testing_flow()
 
 '''

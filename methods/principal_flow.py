@@ -12,6 +12,25 @@ from centroid_finder import compute_principal_component_vecs, sphere_centroid_fi
 # Kernel Methods #
 ##################
 
+def choose_h(points, p, percent=20):
+    """ This function helps to choose a h 
+    that accurately reconstructs the data, 
+    h tries to let the centroid reach
+    around 15% of the data.
+
+    Args:
+        points ([np.array,(n,p)]): [data]
+        p ([np.array]): [description]
+        percent (int, optional): [description]. Defaults to 15.
+
+    Returns:
+        [float]: [h value to use.]
+    """    
+    distances = sorted(get_pairwise_distances(points, p))
+    index = math.ceil(len(points)*percent/100)
+    print(index)
+    return distances[index]
+
 def binary_kernel_old(h, data, centroid):
     """ The 0-1 kernel. Assigns each point a 
     weight of 0 or 1. If the euclidean 
@@ -79,6 +98,24 @@ def gaussian(x, centroid, h) -> float:
     exp_part = np.exp(-np.linalg.norm(x - mu)**2/2*variance)
     return non_exp_part * exp_part
 
+def new_gaussian(x, centroid, h) -> float:
+    """is the gaussian PDF, except we use 
+    the euclidean norm of (x-mu) 
+    instead of (x-mu)^2. This is to force it 
+    to be a 1D gaussian, and to have a scalar output.
+    
+    Args:
+        x (np.array, (1,p)): point to calculate weight for.
+        centroid (np.array): center of gaussian.
+        h (float): is the standard deviation of gaussian.
+
+    Returns:
+        float: weight of x
+    """    
+    exp_part = np.exp(-np.linalg.norm(x - centroid)**2/2*h**2)
+    return exp_part
+
+
 def gaussian_kernel(h, data, centroid) -> "1d numpy array":
     """Weights each point with a 1D gaussian 
     centered around the centroid that has h standard deviation.
@@ -102,7 +139,8 @@ def gaussian_kernel(h, data, centroid) -> "1d numpy array":
     Returns:
         1D numpy array: a 1D array of weights.
     """ 
-    return np.apply_along_axis(gaussian, 1, data, centroid, h)
+    plane_data = np.array(list(map(lambda point: log_map_sphere(centroid, point), data)))
+    return np.apply_along_axis(new_gaussian, 1, plane_data, centroid, h)
 
 def identity_kernel(h, data, centroid):
     """ identity kernel simply spits out same data again.
@@ -254,9 +292,9 @@ def principal_flow(data, epsilon, h, start_point=None, kernel_type="identity", t
     while True:
         num_iter += 1
         if num_iter == 1:
-            w = gaussian_kernel(h, points_on_sphere, p)
+            weights = gaussian_kernel(h, points_on_sphere, p)
             plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
-            _ , principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, w)
+            _ , principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, weights)
             principal_direction_opp = - principal_direction
         
         else:
@@ -294,5 +332,5 @@ def principal_flow(data, epsilon, h, start_point=None, kernel_type="identity", t
         if num_iter > 40:
             break
     flow = np.reshape(flow, (-1,3))
-    return flow.T
+    return flow
 
