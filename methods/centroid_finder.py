@@ -161,7 +161,7 @@ def sphere_centroid_finder_points(epsilon, tol, num_points=4, debugging=False):
     return p, num_iter, points_on_sphere.T
 
 
-def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
+def sphere_centroid_finder_vecs(data, dimension, epsilon, tol, debugging=False, max_iter=500):
     """Central Algorithm of this file.
     Works!
     Idea: 
@@ -187,7 +187,7 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
     """    
     # choose p, and get the array of points that exclude p.
     data = np.array(data)
-    if data.shape[1] != 3:
+    if data.shape[1] != dimension:
         data = data.T
     points_on_sphere = data
     p_index =  0
@@ -204,11 +204,13 @@ def sphere_centroid_finder_vecs(data, epsilon, tol, debugging=False):
         if test_eig_diff(eig_values, tol):
             # gap between eigenvalues are v small
             break
-        if num_iter > 500:
+        if num_iter > max_iter:
             break
+        '''
         if debugging:
             return points_on_sphere.T, p_prime
-    return p, num_iter, points_on_sphere.T
+        '''
+    return p
 
 
 def sphere_centroid_finder_no_pca(epsilon, tol, num_points=4,debugging=False): # works!!

@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 from mpl_toolkits.mplot3d import Axes3D
-from sklearn.decomposition import PCA
 import scipy
 import math
 import os
@@ -195,8 +194,7 @@ def testing():
         data_np = (data_np.T[1:]).T
         random.seed(999)
 
-        final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
-        print(num_iter)
+        final_p = sphere_centroid_finder_vecs(data_np, 3, 0.05, 0.01)
 
         phi = np.linspace(0, np.pi, 20)
         theta = np.linspace(0, 2 * np.pi, 40)
@@ -207,7 +205,7 @@ def testing():
         fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
         ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1,alpha =0.3) # alpha affects transparency of the plot
 
-        xx, yy, zz = points_to_print
+        xx, yy, zz = data_np
         ax.scatter(xx, yy, zz, color="k", s=50)
         ax.scatter(final_p[0], final_p[1], final_p[2], color="r", s=50)
 
@@ -224,10 +222,8 @@ def testing_single():
         data_np = (data_np.T[1:]).T
         random.seed(999)
 
-        final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
+        final_p = sphere_centroid_finder_vecs(data_np, 3, 0.05, 0.01)
         print(final_p)
-        print(num_iter)
-
         phi = np.linspace(0, np.pi, 20)
         theta = np.linspace(0, 2 * np.pi, 40)
         x = np.outer(np.sin(theta), np.cos(phi))
@@ -237,39 +233,71 @@ def testing_single():
         fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
         ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1,alpha =0.3) # alpha affects transparency of the plot
 
-        xx, yy, zz = points_to_print
+        xx, yy, zz = data_np
         ax.scatter(xx, yy, zz, color="k", s=50)
         ax.scatter(final_p[0], final_p[1], final_p[2], color="r", s=50)
 
         plt.show()
 
+def mnist_flow(digit):
+    
+    from keras.datasets import mnist
+    (train_X, train_y), (test_X, test_y) = mnist.load_data()
+    print(type(train_X))
+    print(train_X.shape)
+    train_filter = np.where(train_y == digit)
+    test_filter = np.where(test_y == digit)
+    train_X, train_y = train_X[train_filter], train_y[train_filter]
+    test_X, test_y = test_X[test_filter], test_y[test_filter]
+    print(train_X.shape)
+    #print(train_X[0])
+    image_vector_size = 28*28
+    train_X = train_X.reshape(train_X.shape[0], image_vector_size)
+    test_X = test_X.reshape(test_X.shape[0], image_vector_size)
+    print(train_X.shape)
+    #print(train_X[0])
+    '''
+    for i in range(9):  
+        plt.subplot(330 + 1 + i)
+        plt.imshow(train_X[i], cmap=plt.get_cmap('gray'))
+        plt.show()
+    '''
+    # TODO use principal flow to get mnist flow of one digit
+
+
 def testing_flow():
-    data = pd.read_csv('Sample_Data/data13.csv')
+    data = pd.read_csv('Sample_Data/data11.csv')
     data_np = data.to_numpy()
     
     data_np = (data_np.T[1:]).T
     random.seed(999)
-
-    final_p, num_iter, points_to_print = sphere_centroid_finder_vecs(data_np, 0.05, 0.01)
+    
+    final_p = sphere_centroid_finder_vecs(data_np, 3, 0.05, 0.01)
+    #print(final_p)
+    '''
     # what's next? try make h a normalising constant
     # make fraction in np.exp smaller to get bigger weight
     # so bigger weight for smaller points - denominator bigger than numerator which is dist from centroid to point.
     distances = get_pairwise_distances(data_np.T, final_p)
     plane_vectors = np.array(list(map(lambda point: log_map_sphere(final_p, point), data_np.T)))
-    dist_and_weight = [(d, new_gaussian(point, final_p, 0.1)) for d, point in zip(distances, plane_vectors)]
-    exp_parts = [np.exp(-np.linalg.norm(x - final_p)**2) for x in plane_vectors]
+    dist_and_weight = [(d, new_gaussian(point, final_p, 3)) for d, point in zip(distances, plane_vectors)]
+    dist_and_exp = [(d, -np.linalg.norm(point - final_p)**2) for d, point in zip(distances, plane_vectors)]
+    exp_parts = [(-np.linalg.norm(x - final_p)**2) for x in plane_vectors]
     #print(distances)
     #print(gaussian_kernel(0.1,data_np.T,final_p))
-    print(dist_and_weight)
+    #print(dist_and_weight)
     print("")
-    print(exp_parts)
-    print(sorted(dist_and_weight))
+    print(sorted(dist_and_exp))
+    #print(sorted(dist_and_weight))
     
-    '''
     print(final_p)
-    print(choose_h(data_np.T, final_p))
-    h = choose_h(data_np.T, final_p)
-    curve = principal_flow(data_np, 0.02, h, final_p,"binary")
+    #print(choose_h(data_np.T, final_p))
+    print(choose_h_gaussian(data_np.T, final_p, 5))
+    '''
+    print(choose_h_gaussian(data_np.T, final_p, 100))
+    print(choose_h_gaussian(data_np.T, final_p, 1))
+    h = choose_h_gaussian(data_np.T, final_p, 100) # needs to be very high!
+    curve = principal_flow(data_np, 3, 0.02, h, final_p,"gaussian")
     print(curve)
     x_curve, y_curve, z_curve = curve.T
    
@@ -282,13 +310,14 @@ def testing_flow():
     fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
     ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1,alpha =0.3) # alpha affects transparency of the plot
 
-    xx, yy, zz = points_to_print
+    xx, yy, zz = data_np
     ax.scatter(xx, yy, zz, color="k", s=50)
     ax.scatter(x_curve, y_curve, z_curve, color="r", s=50)
 
     plt.show()
-    '''
+
 testing_flow()
+# mnist_flow(3)
 
 '''
 print(os.path.abspath(os.curdir))

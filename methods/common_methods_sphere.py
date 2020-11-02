@@ -146,7 +146,7 @@ def spherical_to_cartesian(point) -> list:
 def get_pairwise_distances(points, p) -> list:
     '''
     Helper function to get sum of pairwise distances
-    points = (n,3) array
+    points = (n,p) array
     '''
     points = np.array(points)
     p = np.array(p)
@@ -163,7 +163,7 @@ def get_sum_pairwise_distances(points, p) -> float:
 def angle(x, y) -> float:
     '''
     Helper function to do calculate the angle between x and y,
-    2 vectors in R^3
+    2 vectors in R^p
     '''
     xy = np.dot(x, y)/(np.linalg.norm(x)*np.linalg.norm(y))
     if abs(xy) > 1:
@@ -214,7 +214,7 @@ def log_map_sphere(tangent_point, sphere_point):
     p + log_map_sphere(p,point)
 
     Args:
-    tangent_point: (3,1) array of the point on the sphere 
+    tangent_point: (p,1) array of the point on the sphere 
     at which the tangent plane is tangent to.
     sphere_point: the point on the sphere which we want to project onto the 
     tangent plane 

@@ -31,26 +31,25 @@ def choose_h(points, p, percent=20):
     print(index)
     return distances[index]
 
-def binary_kernel_old(h, data, centroid):
-    """ The 0-1 kernel. Assigns each point a 
-    weight of 0 or 1. If the euclidean 
-    distance fromt the point to centroid < h, 
-    then it has a weight of 1, else 0.
-    In other words, includes or excludes points,
-    based on whether the point is within 
-    the neighbourhood of size h centered
-    at centroid.
+def choose_h_gaussian(points, p, percent=20):
+    """ This function helps to choose a h 
+    that accurately reconstructs the data, 
+    h tries to let the centroid reach
+    around 15% of the data.
 
     Args:
-        h (float): [description]
-        data (np.array,(n,p)): [description]
-        centroid (np.array,(1,p) ): [description]
+        points ([np.array,(n,p)]): [data]
+        p ([np.array]): [description]
+        percent (int, optional): [description]. Defaults to 15.
 
     Returns:
-        1D numpy array: array of weights.
+        [float]: [h value to use.]
     """    
-    dists = np.array(get_pairwise_distances(data, centroid))
-    return data[(dists < h)]
+    get_norm = lambda point: np.linalg.norm(point - p)**2
+    distances = sorted(np.apply_along_axis(get_norm, 1, points))
+    index = math.ceil((len(points)-1)*percent/100)
+    #print(index)
+    return math.sqrt(distances[index]/2)*18 # slightly arbitrary constant 18
 
 def binary_kernel(h, data, centroid):
     """ The 0-1 kernel. Assigns each point a 
@@ -129,13 +128,13 @@ def gaussian_kernel(h, data, centroid) -> "1d numpy array":
     the points by closeness to the centroid only.
 
     Args:
-        h (float): scale; smaller h, 
+        h (float): scale; larger h, 
         larger weight on nearer points => smaller neighbourhood
-        bigger h, more equal weights => larger neighbourhood 
+        smaller h, more equal weights => larger neighbourhood 
         data (np.array, (n,p)): data we use to compute weights 
         centroid (np.array, (p,1)): the point at which the plane is tangent
         to the sphere, use as center for the kernel.
-
+        h = 10 for q accurate reconstruction of dataset.
     Returns:
         1D numpy array: a 1D array of weights.
     """ 
@@ -170,7 +169,7 @@ def multivar_gaussian_kernel(h, data, centroid):
     Returns:
         1D numpy array: a 1D array of weights.
     """    
-    covar_mat = h * np.identity(3)
+    covar_mat = h * np.identity(data.shape[1])
     distribution = scipy.stats.multivariate_normal(mean=centroid, cov=covar_mat)
     func = lambda point: point * distribution.pdf(point)
     vectorised = np.vectorize(func)
@@ -209,7 +208,7 @@ def compute_principal_component_vecs_weighted(vectors, p, weights):
     return eig_values, eig_tuples[0][1]
 
 
-def principal_flow(data, epsilon, h, start_point=None, kernel_type="identity", tol=1e-2):
+def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="identity", tol=1e-2, max_iter=40):
     # note: non-default arguments must be placed before default
     """ Computes the principal flow of the dataset. 
     Idea: This is a "greedy" implmentation of the principal flow 
@@ -265,13 +264,13 @@ def principal_flow(data, epsilon, h, start_point=None, kernel_type="identity", t
     """
     # handle data
     data = np.array(data)
-    if data.shape[1] != 3:
+    if data.shape[1] != dimension:
         data = data.T
     points_on_sphere = data
     
     # handle starting point
     if type(start_point) == None:
-        p = sphere_centroid_finder_vecs(data, 0.05, 0.01)
+        p = sphere_centroid_finder_vecs(data, 3, 0.05, 0.01)
     else:
         assert type(start_point) == np.array or \
             type(start_point) == np.ndarray, "Start point must be an np.array or an np.ndarray"
@@ -329,8 +328,8 @@ def principal_flow(data, epsilon, h, start_point=None, kernel_type="identity", t
         flow = np.concatenate((flow, p))
         flow = np.concatenate((p_opp, flow))
 
-        if num_iter > 40:
+        if num_iter > max_iter:
             break
-    flow = np.reshape(flow, (-1,3))
+    flow = np.reshape(flow, (-1,dimension))
     return flow
 
