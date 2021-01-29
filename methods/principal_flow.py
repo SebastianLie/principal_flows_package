@@ -12,7 +12,7 @@ from centroid_finder import compute_principal_component_vecs, sphere_centroid_fi
 # Kernel Methods #
 ##################
 
-def choose_h(points, p, percent=20):
+def choose_h_binary(points, p, percent=20):
     """ This function helps to choose a h 
     that accurately reconstructs the data, 
     h tries to let the centroid reach
@@ -179,11 +179,19 @@ def multivar_gaussian_kernel(h, data, centroid):
 # Main Algorithm #
 ##################
 
-def compute_principal_component_vecs_weighted(vectors, p, weights):
+def compute_principal_component_vecs_weighted(vectors, p, weights, component=1, boundary=False):
     """The weighted version of compute_principal_component_vecs:
     It cacluates the largest principal component for the points weighted 
     by some kernel. Follow equation 2 from the principal flow paper,
     namely: .....
+
+    Note that PCA can be done in 2 ways: 
+    1. via the eigen decomposition of the covariance matrix
+    2. SVD on the centered data matrix
+
+    Here, we also use 1. instead of 2., because to apply the kernel (weights) correctly,
+    we need to calculate the covariance matrix as below, iteratively computing it for each 
+    data point. 
 
     Args:
         vectors (np.array, (n,p)): matrix of plane vectors, each row is a vector.
@@ -201,14 +209,36 @@ def compute_principal_component_vecs_weighted(vectors, p, weights):
     for i in range(n):
         covar_mat += np.multiply(np.outer(X[i,:], X[i,:]), weights[i])
     covar_mat /= sum(weights)
+    mat_all_zeros = not np.any(covar_mat)
+    if mat_all_zeros:
+        raise ValueError("Covariance matrix is 0! Flow might be too far from data.")
 
     eig_values, eig_vectors = np.linalg.eig(covar_mat)
+    # issue here: eig values and eig vector elements were 
+    # in complex128 dtype. so force the change to float64 to be compatible 
+    # with the rest of data.
+    # however might be losing information......
+    # TODO: need to check this.
+    eig_values = eig_values.astype('float64') 
+    eig_vectors = eig_vectors.astype('float64')
     eig_tuples = list(zip(eig_values, eig_vectors.T))
-    eig_tuples = sorted(eig_tuples, reverse=True)
-    return eig_values, eig_tuples[0][1]
+
+    # error report: this sorting line was giving an error about truth value of array being 
+    # ambigious, because the 2nd item of the tuple, the eig vector was being compared!
+    # we were only supposed to compare the 1st element!!
+    # solution: force sorted to only use the 1st element (key=lambda x: x[0]), 
+    # after all we only need the largest.
+    # TODO: find better way to get eig vec of largest associated eig value
+    eig_tuples = sorted(eig_tuples, reverse=True, key=lambda x: x[0])
+    if boundary == True:
+        return eig_tuples[0], eig_tuples[1]
+        
+    else:
+        return eig_values, eig_tuples[component-1][1]
 
 
-def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="identity", tol=1e-2, max_iter=40):
+def principal_flow(data, dimension, epsilon, h, flow_num=1, start_point=None, \
+    kernel_type="identity", tol=1e-2, max_iter=40):
     # note: non-default arguments must be placed before default
     """ Computes the principal flow of the dataset. 
     Idea: This is a "greedy" implmentation of the principal flow 
@@ -245,19 +275,23 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
     Args:
         data (np.array, (n,p)): [The data set, of shape (n,p), n = number of data points, p = dimension.]
 
+        dimension (integer): dimension of data
+
         epsilon (float): [step size for the principal flow.]
 
-        h (float): [Scale. Determines how "local" the principal flow is. 
+        h (float): [Scale. Determines how "local" the principal flow is.
         Smaller scale => smaller neighbourhood, more emphasis on smaller pool of nearer points
         Bigger scale => bigger neighbourhood, emphasis on larger pool of points.]
         
-        start_point (np.array, (p,1)): [the centroid, or the place to start the principal flow. 
+        start_point (np.array, (p,1)): [the centroid, or the place to start the principal flow.
         Defaults to None.]
 
-        kernel_type (string): [specifies the kernel function. Default is the identity kernel, 
+        kernel_type (string): [specifies the kernel function. Default is the identity kernel,
         which applies a weight of 1 to every point.]
 
         tol (float, optional): [useless for now.]
+
+        max_iter (integer): number of points on each side of the flow.
 
     Returns:
         np.array: An array that contains the points of the principal flow.
@@ -272,11 +306,12 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
     if type(start_point) == None:
         p = sphere_centroid_finder_vecs(data, 3, 0.05, 0.01)
     else:
-        assert type(start_point) == np.array or \
-            type(start_point) == np.ndarray, "Start point must be an np.array or an np.ndarray"
+        # error report: for checking 
+        assert type(start_point) is not np.array or \
+            type(start_point) is not np.ndarray, "Start point must be an np.array or an np.ndarray"
         p = start_point
-    flow = np.array(p)
 
+    flow = np.array(p)
     # handle kernel
     kernel_functions = {"binary": binary_kernel, "gaussian": gaussian_kernel, "identity": identity_kernel}
     assert kernel_type in kernel_functions.keys(), "Kernel must be binary, gaussian or identity."
@@ -291,9 +326,13 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
     while True:
         num_iter += 1
         if num_iter == 1:
-            weights = gaussian_kernel(h, points_on_sphere, p)
+            weights = kernel(h, points_on_sphere, p)
             plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
-            _ , principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, weights)
+            try:
+                _, principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, weights, component=flow_num)
+            except ValueError as err:
+                print("Flow ends here, the covariance matrix is 0, implying that the flow is far from the data.")
+                break
             principal_direction_opp = - principal_direction
         
         else:
@@ -301,7 +340,11 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
             weights = kernel(h, points_on_sphere, p)
             plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
             past_direction = principal_direction
-            _ , principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, weights)
+            try:
+                _, principal_direction = compute_principal_component_vecs_weighted(plane_vectors, p, weights, component=flow_num)
+            except ValueError:
+                print("Flow ends here, the covariance matrix is 0, implying that the flow is far from the data.")
+                break
             # make sure same direction
             if angle(past_direction, principal_direction) > math.pi/2:
                 principal_direction = -principal_direction
@@ -309,7 +352,11 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
             weights_opp = kernel(h, points_on_sphere, p_opp)
             plane_vectors_opp = np.array(list(map(lambda point: log_map_sphere(p_opp, point), points_on_sphere)))
             past_direction_opp = principal_direction_opp
-            eig_values, principal_direction_opp = compute_principal_component_vecs_weighted(plane_vectors_opp, p_opp, weights_opp)
+            try:
+                _, principal_direction_opp = compute_principal_component_vecs_weighted(plane_vectors_opp, p, weights_opp, component=flow_num)
+            except ValueError:
+                print("Flow ends here, the covariance matrix is 0, implying that the flow is far from the data.")
+                break
             # make sure same direction
             if angle(past_direction_opp, principal_direction_opp) > math.pi/2:
                 principal_direction_opp = -principal_direction_opp
@@ -330,6 +377,6 @@ def principal_flow(data, dimension, epsilon, h, start_point=None, kernel_type="i
 
         if num_iter > max_iter:
             break
-    flow = np.reshape(flow, (-1,dimension))
+    flow = np.reshape(flow, (-1, dimension))
     return flow
 

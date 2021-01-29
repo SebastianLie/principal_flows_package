@@ -1,10 +1,5 @@
 import numpy as np
-import random
-import math
-import matplotlib.pyplot as plt
-from matplotlib import cm, colors
-from mpl_toolkits.mplot3d import Axes3D
-from scipy import linalg
+
 
 #####################
 # Generating Points #
@@ -135,6 +130,18 @@ def generate_square_many(npoints):
 # Helper functions #
 ####################
 
+def put_on_sphere(points):
+    """ Puts an arbitrary number of points(vectors) 
+    onto the hypersphere i.e normalising to 1 unit norm
+
+    Args:
+        points ([numpy.ndarray]): points to put on the hypersphere
+
+    Returns:
+        np.array: np.array containing the points residing on the hypersphere.
+    """    
+    return np.array([point/np.linalg.norm(point) for point in points])
+
 def spherical_to_cartesian(point) -> list:
     '''
     assumes input is 3 dimensional, spherical coord, uses:
@@ -165,11 +172,10 @@ def angle(x, y) -> float:
     Helper function to do calculate the angle between x and y,
     2 vectors in R^p
     '''
-    xy = np.dot(x, y)/(np.linalg.norm(x)*np.linalg.norm(y))
-    if abs(xy) > 1:
-        xy = round(xy)
-    return np.arccos(xy)
-
+    x_y = np.dot(x, y)/(np.linalg.norm(x)*np.linalg.norm(y))
+    if abs(x_y) > 1:
+        x_y = round(x_y)
+    return np.arccos(x_y)
 
 #####################
 # Projecting points #
@@ -259,4 +265,3 @@ def test_eig_diff(eig_values, tol):
     eig_values_from_1 = np.append(eig_values[1:], 0)
     gaps = (eig_values - eig_values_from_1)[:-1]
     return (gaps < tol).all()
-

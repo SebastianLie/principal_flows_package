@@ -7,6 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import scipy
 import math
 import os
+import cv2
 from common_methods_sphere import *
 from principal_flow import *
 from centroid_finder import *
@@ -114,7 +115,7 @@ def compute_principal_component_vecs_old(vectors, p):
 
     return sorted(eig_values,reverse=True), vec
 
-def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
+def algorithm_alt(epsilon, tol, debugging=False):
     '''
     0. General some points in advance including p.
     1. choose 1 of the points randomly, call it p
@@ -178,11 +179,18 @@ def algorithm_alt(epsilon, tol, num_points=4,debugging=False):
             return points_on_sphere.T, p_prime
     return p, num_iter, points_on_sphere.T
 
-def add_noise_to_data(points):
-    ## TODO
-    return points
+def noising_data(points, variance=0.1):
+    # approach: add a random centered normal RV to every dimension
+    # of each point
+    # still needs to be normalised to have norm 1! 
+    # data not usable after this step yet
+    # assumes points are in (n,p) format
+    p = points.shape[1]
+    sigma = math.sqrt(variance)
+    return np.array([np.array(point) - np.random.normal(0, sigma, p) for point in points])
 
-def testing():
+
+def testing_flow_all():
 
     import glob 
     filenames = glob.glob('Sample_Data/*.csv')
@@ -211,62 +219,9 @@ def testing():
 
         plt.show()
 
-def testing_single():
 
-    import glob 
-    filenames = glob.glob('Sample_Data/*.csv')
-    for name in filenames[4:5]:
-        # ['data1.csv', 'data10.csv', 'data11.csv', 'data12.csv', 'data13.csv', 'data14.csv', 'data2.csv', 'data3.csv', 'data4.csv', 'data5.csv', 'data7.csv', 'data8.csv', 'data9.csv']
-        data = pd.read_csv(name)
-        data_np = data.to_numpy()
-        data_np = (data_np.T[1:]).T
-        random.seed(999)
-
-        final_p = sphere_centroid_finder_vecs(data_np, 3, 0.05, 0.01)
-        print(final_p)
-        phi = np.linspace(0, np.pi, 20)
-        theta = np.linspace(0, 2 * np.pi, 40)
-        x = np.outer(np.sin(theta), np.cos(phi))
-        y = np.outer(np.sin(theta), np.sin(phi))
-        z = np.outer(np.cos(theta), np.ones_like(phi))
-
-        fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
-        ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1,alpha =0.3) # alpha affects transparency of the plot
-
-        xx, yy, zz = data_np
-        ax.scatter(xx, yy, zz, color="k", s=50)
-        ax.scatter(final_p[0], final_p[1], final_p[2], color="r", s=50)
-
-        plt.show()
-
-def mnist_flow(digit):
-    
-    from keras.datasets import mnist
-    (train_X, train_y), (test_X, test_y) = mnist.load_data()
-    print(type(train_X))
-    print(train_X.shape)
-    train_filter = np.where(train_y == digit)
-    test_filter = np.where(test_y == digit)
-    train_X, train_y = train_X[train_filter], train_y[train_filter]
-    test_X, test_y = test_X[test_filter], test_y[test_filter]
-    print(train_X.shape)
-    #print(train_X[0])
-    image_vector_size = 28*28
-    train_X = train_X.reshape(train_X.shape[0], image_vector_size)
-    test_X = test_X.reshape(test_X.shape[0], image_vector_size)
-    print(train_X.shape)
-    #print(train_X[0])
-    '''
-    for i in range(9):  
-        plt.subplot(330 + 1 + i)
-        plt.imshow(train_X[i], cmap=plt.get_cmap('gray'))
-        plt.show()
-    '''
-    # TODO use principal flow to get mnist flow of one digit
-
-
-def testing_flow():
-    data = pd.read_csv('Sample_Data/data11.csv')
+def testing_flow_single():
+    data = pd.read_csv('Sample_Data/data13.csv')
     data_np = data.to_numpy()
     
     data_np = (data_np.T[1:]).T
@@ -296,9 +251,9 @@ def testing_flow():
     '''
     print(choose_h_gaussian(data_np.T, final_p, 100))
     print(choose_h_gaussian(data_np.T, final_p, 1))
-    h = choose_h_gaussian(data_np.T, final_p, 100) # needs to be very high!
-    curve = principal_flow(data_np, 3, 0.02, h, final_p,"gaussian")
-    print(curve)
+    h = choose_h_gaussian(data_np.T, final_p, 90) # needs to be very high!
+    curve = principal_flow(data_np, 3, 0.02, h, flow_num=1, start_point=final_p, kernel_type="gaussian")
+    #print(curve)
     x_curve, y_curve, z_curve = curve.T
    
     phi = np.linspace(0, np.pi, 20)
@@ -316,14 +271,134 @@ def testing_flow():
 
     plt.show()
 
-testing_flow()
-# mnist_flow(3)
+def testing_flow_noisy():
+    data = pd.read_csv('Sample_Data/data13.csv')
+    data_np = data.to_numpy()
+    data_np = data_np.T[1:]
+    noisy_data = noising_data(data_np, 0.01)
+    noisy_data = put_on_sphere(noisy_data)
+    random.seed(999)
+    final_p = sphere_centroid_finder_vecs(noisy_data, 3, 0.05, 0.01)
+    #print(final_p)
+    h = choose_h_gaussian(noisy_data, final_p, 75) # needs to be very high! # needs to be very high!
+    curve = principal_flow(noisy_data, 3, 0.02, h, flow_num=1, start_point=final_p, kernel_type="gaussian", max_iter=30)
+    #print(curve)
+    x_curve, y_curve, z_curve = curve.T
 
-'''
+    phi = np.linspace(0, np.pi, 20)
+    theta = np.linspace(0, 2 * np.pi, 40)
+    x = np.outer(np.sin(theta), np.cos(phi))
+    y = np.outer(np.sin(theta), np.sin(phi))
+    z = np.outer(np.cos(theta), np.ones_like(phi))
+
+    fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
+    ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1,alpha =0.3) # alpha affects transparency of the plot
+
+    xx, yy, zz = noisy_data.T
+    ax.scatter(xx, yy, zz, color="k", s=50)
+    ax.scatter(x_curve, y_curve, z_curve, color="r", s=50)
+
+    plt.show()
+
+def mnist_flow(digit, samples=100): #TODO
+    
+    from keras.datasets import mnist
+    (train_X, train_y), (test_X, test_y) = mnist.load_data()
+    print(type(train_X))
+    print(train_X.shape)
+
+    train_filter = np.where(train_y == digit)
+    test_filter = np.where(test_y == digit)
+
+    train_X, train_y = train_X[train_filter], train_y[train_filter]
+    test_X, test_y = test_X[test_filter], test_y[test_filter]
+
+    '''
+    for i in range(9):  
+        plt.subplot(330 + 1 + i)
+        plt.imshow(train_X[i], cmap=plt.get_cmap('gray'))
+    plt.show()
+    '''
+    # train_X.shape = (...., 28, 28)
+    image_vector_size = train_X.shape[1]*train_X.shape[2]
+    train_X = train_X.reshape(train_X.shape[0], image_vector_size)
+    test_X = test_X.reshape(test_X.shape[0], image_vector_size)
+
+    # train_X.shape = (....,784)
+    train_samples = np.random.choice(train_X.shape[0], size=samples)
+    # print(train_samples)
+    sampled_X = train_X[train_samples]
+
+    for i in range(9):
+        plt.subplot(330 + 1 + i)
+        plt.imshow(sampled_X[i].reshape(28,28), cmap=plt.get_cmap('gray'))
+    plt.show()
+   
+    # sampled_X.shape = (100,784)
+   
+    sampled_X_on_sphere = put_on_sphere(sampled_X)
+    # print(sampled_X_on_sphere[0])
+    final_p = sphere_centroid_finder_vecs(sampled_X_on_sphere, sampled_X.shape[1], 0.05, 0.01)
+    # print(final_p)
+   
+    final_p_img = final_p.reshape(28, 28)
+    plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
+    plt.show()
+
+    h = choose_h_gaussian(sampled_X_on_sphere, final_p, 75) # needs to be very high!
+    curve = principal_flow(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, flow_num=2,start_point=final_p,kernel_type="gaussian",max_iter=20)
+    for j in range(3):
+        for i in range(9):
+            plt.subplot(330 + 1 + i)
+            plt.imshow(curve[i + 9*j].reshape(28,28), cmap=plt.get_cmap('gray'))
+        plt.show()
+
+    # TODO use principal flow to get mnist flow of one digit
+
+def noisy_image_flow(): #TODO
+    directory_in_str = os.path.abspath(os.curdir) + "\\noisy_images"
+    directory = os.fsencode(directory_in_str)
+    X = list()  # image array
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if filename.endswith(".png"): 
+            image = cv2.imread('noisy_images/' + filename, 0)
+            X.append(image)
+    X = np.array(X)
+    m, n = image.shape
+    image_vector_size = m * n
+    for i in range(9):
+        plt.subplot(330 + 1 + i)
+        plt.imshow(X[i].reshape(m, n), cmap=plt.get_cmap('gray'))
+    plt.show()
+    num_images = len(X)
+    X = X.reshape(num_images, image_vector_size)
+    print(X.shape)
+    X_on_sphere = put_on_sphere(X)
+    final_p = sphere_centroid_finder_vecs(X_on_sphere, X.shape[1], 0.05, 0.01)
+    # print(final_p)
+   
+    final_p_img = final_p.reshape(m, n)
+    plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
+    plt.show()
+
+    h = choose_h_gaussian(X_on_sphere, final_p, 75) # needs to be very high!
+    curve = principal_flow(X_on_sphere, X.shape[1], 0.02, h, flow_num=1, start_point=final_p, kernel_type="gaussian",max_iter=20)
+    for j in range(3):
+        for i in range(9):
+            plt.subplot(330 + 1 + i)
+            plt.imshow(curve[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
+        plt.show()
+    # TODO use principal flow to get mnist flow of one digit
+
+
 print(os.path.abspath(os.curdir))
 os.chdir("..")
 print(os.path.abspath(os.curdir))
-'''
+testing_flow_noisy()
+#testing_flow_single()
+#mnist_flow(3)
+#noisy_image_flow()
 '''
 ps, p_prime = algorithm_alt(0.05, 0.1,debugging=True)
 print("break")
