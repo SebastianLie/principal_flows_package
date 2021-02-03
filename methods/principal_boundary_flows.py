@@ -7,9 +7,12 @@ from principal_flow import choose_h_gaussian, choose_h_binary, \
 from common_methods_sphere import log_map_sphere, exp_map_sphere, angle
 from centroid_finder import sphere_centroid_finder_vecs
 
-
+# radius use binary kernel h
+# plotting boundary: need to "transport" 1st eigenvector at p on the flow to p'
+# on the boundary, then plot these vectors
 def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
     kernel_type="identity", tol=1e-2, max_iter=40):
+    # points on sphere now!!
     # note: non-default arguments must be placed before default
     """ Computes the principal boundary of the dataset.
     Idea: This is a "greedy" implmentation of the principal boundary
@@ -52,9 +55,9 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
             type(start_point) is not np.ndarray, "Start point must be an np.array or an np.ndarray"
         p = start_point
 
-    upper_boundary = np.array([])
+    upper_boundary = list()
     flow = np.array(p)
-    lower_boundary = np.array([])
+    lower_boundary = list()
     # handle kernel
     kernel_functions = {"binary": binary_kernel, "gaussian": gaussian_kernel, "identity": identity_kernel}
     assert kernel_type in kernel_functions.keys(), "Kernel must be binary, gaussian or identity."
@@ -62,7 +65,6 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
 
     p_opp = p
     num_iter = 0
-    upper_direction = []
     while True:
         num_iter += 1
         if num_iter == 1:
@@ -80,14 +82,28 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
             second_eigenval = boundary_pair[0]
             first_orthogonal = boundary_pair[1]
             sigma_f_p = second_eigenval/first_eigenval * radius  # how much to move for boundary
-            upper_boundary_point = p + sigma_f_p * upper_direction
-            upper_boundary = np.concatenate((upper_boundary, upper_boundary_point))
-            lower_boundary_point = p - sigma_f_p * upper_direction
-            lower_boundary = np.concatenate((lower_boundary, lower_boundary_point))
+
+            upper_boundary_point_plane = p + sigma_f_p * first_orthogonal
+            upper_boundary_point = exp_map_sphere(p, upper_boundary_point_plane - p)
+            upper_boundary.append(upper_boundary_point)
+
+            lower_boundary_point_plane = p - sigma_f_p * first_orthogonal
+            lower_boundary_point = exp_map_sphere(p, lower_boundary_point_plane - p)
+            lower_boundary.append(lower_boundary_point)
 
             # for flow
             principal_direction = principal_pair[1]
             principal_direction_opp = - principal_direction
+
+            # first direction
+            p_prime_plane = p + epsilon * principal_direction
+            p_prime = exp_map_sphere(p, p_prime_plane - p)
+            p = p_prime
+
+            # now we do the other direction
+            p_prime_plane_opp = p_opp + epsilon * principal_direction_opp
+            p_prime_opp = exp_map_sphere(p_opp, p_prime_plane_opp - p_opp)
+            p_opp = p_prime_opp
 
         else:
             # calculate for one direction, then the other 
@@ -101,17 +117,7 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
                 print("Flow ends here, the covariance matrix is 0, implying that the flow is far from the data.")
                 break
            
-            # First we update the main point for the flow:
-            # Get principal direction
-            principal_direction = principal_pair[1]
-            if angle(past_direction, principal_direction) > math.pi/2:
-                principal_direction = - principal_direction
-            # update point p
-            p_prime_plane = p + epsilon * principal_direction
-            p_prime = exp_map_sphere(p, p_prime_plane - p)
-            p = p_prime
-
-            # obtain boundary for this point - first we obtain intial info
+           # obtain boundary for this point - first we obtain intial info
             first_eigenval = principal_pair[0]
             second_eigenval = boundary_pair[0]
             orthogonal_to_flow = boundary_pair[1]
@@ -122,10 +128,23 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
             sigma_f_p = second_eigenval/first_eigenval * radius
 
             # get both sides of the boundary + and - orthogonal_to_flow
-            upper_boundary_point = p + sigma_f_p * orthogonal_to_flow
-            upper_boundary = np.concatenate((upper_boundary, upper_boundary_point))
-            lower_boundary_point = p - sigma_f_p * orthogonal_to_flow
-            lower_boundary = np.concatenate((lower_boundary, lower_boundary_point))
+            upper_boundary_point_plane = p + sigma_f_p * orthogonal_to_flow
+            upper_boundary_point = exp_map_sphere(p, upper_boundary_point_plane - p)
+            upper_boundary.append(upper_boundary_point)
+
+            lower_boundary_point_plane = p - sigma_f_p * orthogonal_to_flow
+            lower_boundary_point = exp_map_sphere(p, lower_boundary_point_plane - p)
+            lower_boundary.append(lower_boundary_point)
+
+            # Next we update the main point for the flow:
+            # Get principal direction
+            principal_direction = principal_pair[1]
+            if angle(past_direction, principal_direction) > math.pi/2:
+                principal_direction = - principal_direction
+            # update point p
+            p_prime_plane = p + epsilon * principal_direction
+            p_prime = exp_map_sphere(p, p_prime_plane - p)
+            p = p_prime
            
             weights_opp = kernel(h, data, p_opp)
             plane_vectors_opp = np.array(list(map(lambda point: log_map_sphere(p_opp, point), data)))
@@ -137,16 +156,6 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
                 print("Flow ends here, the covariance matrix is 0, implying that the flow is far from the data.")
                 break
 
-            # make sure same direction
-            principal_direction_opp = principal_pair_opp[1]
-            if angle(past_direction_opp, principal_direction_opp) > math.pi/2:
-                principal_direction_opp = - principal_direction_opp
-
-            # now we do the other direction
-            p_prime_plane_opp = p_opp + epsilon * principal_direction_opp
-            p_prime_opp = exp_map_sphere(p_opp, p_prime_plane_opp - p_opp)
-            p_opp = p_prime_opp
-          
             # get info again
             first_eigenval_opp = principal_pair_opp[0]
             second_eigenval_opp = boundary_pair_opp[0]
@@ -156,21 +165,31 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
                 orthogonal_to_flow_opp = - orthogonal_to_flow_opp
           
             sigma_f_p_opp = second_eigenval_opp/first_eigenval_opp * radius
-            upper_boundary_point_opp = p_opp + sigma_f_p_opp * orthogonal_to_flow_opp
-            upper_boundary = np.concatenate((upper_boundary, upper_boundary_point_opp))
-            lower_boundary_point_opp = p_opp - sigma_f_p_opp * orthogonal_to_flow_opp
-            lower_boundary = np.concatenate((lower_boundary, lower_boundary_point_opp))
+
+            upper_boundary_point_opp_plane = p_opp + sigma_f_p_opp * orthogonal_to_flow_opp
+            upper_boundary_point_opp = exp_map_sphere(p_opp, upper_boundary_point_opp_plane - p_opp)
+            upper_boundary.append(upper_boundary_point_opp)
+
+            lower_boundary_point_opp_plane = p_opp - sigma_f_p_opp * orthogonal_to_flow_opp
+            lower_boundary_point_opp = exp_map_sphere(p_opp, lower_boundary_point_opp_plane - p_opp)
+            lower_boundary.append(lower_boundary_point_opp)
+
+            # make sure same direction
+            principal_direction_opp = principal_pair_opp[1]
+            if angle(past_direction_opp, principal_direction_opp) > math.pi/2:
+                principal_direction_opp = - principal_direction_opp
+
+            # now we do the other direction
+            p_prime_plane_opp = p_opp + epsilon * principal_direction_opp
+            p_prime_opp = exp_map_sphere(p_opp, p_prime_plane_opp - p_opp)
+            p_opp = p_prime_opp
 
             # now add to the curve
             flow = np.concatenate((flow, p))
             flow = np.concatenate((p_opp, flow))
 
-        if num_iter > max_iter:
+        if num_iter >= max_iter:
             break
     flow = np.reshape(flow, (-1, dimension))
-    return upper_boundary, flow, lower_boundary
+    return np.array(upper_boundary), flow, np.array(lower_boundary)
 
-
-def calculate_radius(data, p):
-    
-    return 0

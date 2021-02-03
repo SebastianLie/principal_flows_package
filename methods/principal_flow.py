@@ -213,7 +213,7 @@ def compute_principal_component_vecs_weighted(vectors, p, weights, component=1, 
     if mat_all_zeros:
         raise ValueError("Covariance matrix is 0! Flow might be too far from data.")
 
-    eig_values, eig_vectors = np.linalg.eig(covar_mat)
+    eig_values, eig_vectors = np.linalg.eigh(covar_mat)
     # issue here: eig values and eig vector elements were 
     # in complex128 dtype. so force the change to float64 to be compatible 
     # with the rest of data.
