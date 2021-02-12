@@ -211,7 +211,7 @@ def log_map_sphere(tangent_point, sphere_point):
     Log maps Usage - for any point on the sphere s, 
     and a point at which the sphere is tangent to the plane 
     we wish to project on, t,
-    log_map(t, s) gives the direction (vector) on THE TANGENT PLANE 
+    log_map(t, s) gives the direction (VECTOR) on THE TANGENT PLANE 
     in which t should move so that it becomes point closest to s 
     on the tangent plane defined by t.
     Thus, to obtain the projection of s onto the 
@@ -223,7 +223,8 @@ def log_map_sphere(tangent_point, sphere_point):
     tangent_point: (p,1) array of the point on the sphere 
     at which the tangent plane is tangent to.
     sphere_point: the point on the sphere which we want to project onto the 
-    tangent plane 
+    tangent plane
+
 
     formula from https://ronnybergmann.net/mvirt/manifolds/Sn/log.html
     Checked against geomstats in python for correctness, checks out.

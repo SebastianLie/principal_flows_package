@@ -10,7 +10,9 @@ import os
 import cv2
 from common_methods_sphere import *
 from principal_flow import *
+from principal_boundary_flows import principal_boundary
 from centroid_finder import *
+from schilds_ladder import *
 
 
 def test_pairwise_distances(points, p, tol=0.01):
@@ -179,12 +181,13 @@ def algorithm_alt(epsilon, tol, debugging=False):
             return points_on_sphere.T, p_prime
     return p, num_iter, points_on_sphere.T
 
-def noising_data(points, variance=0.1):
+def noising_data(points, variance=0.1, seed=999):
     # approach: add a random centered normal RV to every dimension
     # of each point
     # still needs to be normalised to have norm 1! 
     # data not usable after this step yet
     # assumes points are in (n,p) format
+    np.random.seed(seed)
     p = points.shape[1]
     sigma = math.sqrt(variance)
     return np.array([np.array(point) - np.random.normal(0, sigma, p) for point in points])
@@ -391,14 +394,155 @@ def noisy_image_flow(): #TODO
         plt.show()
     # TODO use principal flow to get mnist flow of one digit
 
+def testing_schilds_ladder_hypersphere():  
+    # proof of concept! achieves same value as running R
+    data = pd.read_csv('Sample_Data/data13.csv')
+    data_np = data.to_numpy()
+    data_np = data_np.T[1:]
+    p = sphere_centroid_finder_vecs(data_np, 3, 0.05, 0.01)
+    h = choose_h_gaussian(data_np, p, 50) # needs to be very high! # needs to be very high!
+    
+    radius = choose_h_binary(data_np, p,30)
+    weights = gaussian_kernel(h, data_np, p)
+    plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), data_np)))
+
+    
+    principal_pair, boundary_pair = compute_principal_component_vecs_weighted(\
+        plane_vectors, p, weights, boundary=True)
+
+    # update boundary
+    first_eigenval = principal_pair[0]
+    second_eigenval = boundary_pair[0]
+    first_orthogonal = boundary_pair[1]
+    principal_direction = principal_pair[1]
+    sigma_f_p = 0.40  # how much to move for boundary
+
+    upper_boundary_point_plane = p + sigma_f_p * first_orthogonal
+    upper_boundary_point = exp_map_sphere(p, upper_boundary_point_plane - p)
+
+    arr = list()
+    arr.append(p)
+    arr.append(upper_boundary_point)
+    arr = np.array(arr)
+
+    phi = np.linspace(0, np.pi, 20)
+    theta = np.linspace(0, 2 * np.pi, 40)
+    x = np.outer(np.sin(theta), np.cos(phi))
+    y = np.outer(np.sin(theta), np.sin(phi))
+    z = np.outer(np.cos(theta), np.ones_like(phi))
+
+    fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
+    ax.plot_wireframe(x, y, z, color='k', rstride=1, cstride=1, alpha=0.1) # alpha affects transparency of the plot
+    
+    print(p)
+    print(upper_boundary_point)
+    print(principal_direction)
+    xp, yp, zp = p
+    xx, yy, zz = upper_boundary_point
+    u, v, w = principal_direction
+    uu, vv, ww = schilds_ladder_hypersphere(p, upper_boundary_point, principal_direction)
+    ax.quiver(xp,yp, zp, u, v, w)
+    ax.quiver(xx,yy, zz, uu, vv, ww)
+    ax.scatter(xp,yp,zp,color="k", s=50)
+    ax.scatter(xx,yy,zz,color="r", s=50)
+    plt.show()
+
+#os.chdir("..")
+#testing_schilds_ladder_hypersphere()
+'''
+p = np.array([0, 0,  0.99961464])
+u = np.array([0,  0.14242402,  0.91922261])
+v = np.array([-0.42068611, -0.1, -0.0274965])
+print(schilds_ladder_hypersphere(p,u,v))
+'''
+
+def testing_boundary_flow_noisy():
+    data = pd.read_csv('Sample_Data/data13.csv')
+    data_np = data.to_numpy()
+    data_np = data_np.T[1:]
+    noisy_data = noising_data(data_np, 0.03, seed=998)  # good seed, don't change!!
+    noisy_data = put_on_sphere(noisy_data)
+    final_p = sphere_centroid_finder_vecs(noisy_data, 3, 0.05, 0.01)
+    #print(final_p)
+    h = choose_h_gaussian(noisy_data, final_p, 50) # needs to be very high! # needs to be very high!
+    radius = choose_h_binary(noisy_data, final_p,30)
+    upper, curve, lower = principal_boundary(noisy_data, 3, 0.02, h, radius, start_point=final_p, kernel_type="gaussian", max_iter=10)
+    #print(curve)
+    x_upper, y_upper, z_upper = upper.T
+    x_curve, y_curve, z_curve = curve.T
+    x_lower, y_lower, z_lower = lower.T
+
+    phi = np.linspace(0, np.pi, 20)
+    theta = np.linspace(0, 2 * np.pi, 40)
+    x = np.outer(np.sin(theta), np.cos(phi))
+    y = np.outer(np.sin(theta), np.sin(phi))
+    z = np.outer(np.cos(theta), np.ones_like(phi))
+
+    fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
+    ax.plot_surface(x, y, z, color='k', rstride=1, cstride=1, alpha=0.1) # alpha affects transparency of the plot
+    xx, yy, zz = noisy_data.T
+    ax.scatter(xx, yy, zz, color="k", s=50)
+    ax.scatter(x_curve, y_curve, z_curve, color="r", s=50)
+    ax.scatter(x_upper, y_upper, z_upper, color="b", s=50)
+    ax.scatter(x_lower, y_lower, z_lower, color="g", s=50)
+
+    plt.show()
 
 print(os.path.abspath(os.curdir))
 os.chdir("..")
 print(os.path.abspath(os.curdir))
-testing_flow_noisy()
+#testing_boundary_flow_noisy()
+
+def testing_boundary_flow_noisy_parallel():
+    data = pd.read_csv('Sample_Data/data13.csv')
+    data_np = data.to_numpy()
+    data_np = data_np.T[1:]
+    noisy_data = noising_data(data_np, 0.03, seed=998)  # good seed, don't change!!
+    noisy_data = put_on_sphere(noisy_data)
+    final_p = sphere_centroid_finder_vecs(noisy_data, 3, 0.05, 0.01)
+    #print(final_p)
+    h = choose_h_gaussian(noisy_data, final_p, 50) # needs to be very high! # needs to be very high!
+    radius = choose_h_binary(noisy_data, final_p,30)
+    upper, curve, lower, upper_directions, lower_directions = principal_boundary(noisy_data, 3, 0.02, h, radius, start_point=final_p, kernel_type="gaussian", max_iter=10, parallel_transport=True)
+    #print(curve)
+    x_upper, y_upper, z_upper = upper.T
+    x_curve, y_curve, z_curve = curve.T
+    x_lower, y_lower, z_lower = lower.T
+    x_upperv, y_upperv, z_upperv = upper_directions.T
+    x_lowerv, y_lowerv, z_lowerv = lower_directions.T
+
+    phi = np.linspace(0, np.pi, 20)
+    theta = np.linspace(0, 2 * np.pi, 40)
+    x = np.outer(np.sin(theta), np.cos(phi))
+    y = np.outer(np.sin(theta), np.sin(phi))
+    z = np.outer(np.cos(theta), np.ones_like(phi))
+
+    fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
+    ax.plot_surface(x, y, z, color='k', rstride=1, cstride=1, alpha=0.1) # alpha affects transparency of the plot
+    xx, yy, zz = noisy_data.T
+    ax.scatter(xx, yy, zz, color="k", s=50)
+    
+    ax.plot(x_curve, y_curve, z_curve, color="r", s=50)
+    ax.quiver(x_upper, y_upper, z_upper, x_upperv, y_upperv, z_upperv, length=0.05, color="b")
+    ax.quiver(x_lower, y_lower, z_lower, x_lowerv, y_lowerv, z_lowerv, length=0.05, color="g")
+    plt.show()
+
+#testing_boundary_flow_noisy_parallel()
+
 #testing_flow_single()
 #mnist_flow(3)
 #noisy_image_flow()
+
+def read_images_animals():
+    images = np.load("dogs_images_grayscale.npy")
+    print(images[0])
+    for i in range(9):
+        plt.subplot(330 + 1 + i)
+        plt.imshow(images[i], cmap=plt.get_cmap('gray'))
+    plt.show()
+
+read_images_animals()
+
 '''
 ps, p_prime = algorithm_alt(0.05, 0.1,debugging=True)
 print("break")

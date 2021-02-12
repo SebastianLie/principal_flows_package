@@ -231,6 +231,7 @@ def compute_principal_component_vecs_weighted(vectors, p, weights, component=1, 
     # TODO: find better way to get eig vec of largest associated eig value
     eig_tuples = sorted(eig_tuples, reverse=True, key=lambda x: x[0])
     if boundary == True:
+        # use for principal boundary
         return eig_tuples[0], eig_tuples[1]
         
     else:
