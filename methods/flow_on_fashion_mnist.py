@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import fashion_mnist
 from common_methods_sphere import put_on_sphere
-from principal_flow import choose_h_gaussian, principal_flow
+from principal_flow import choose_h_gaussian, principal_flow, choose_h_binary
+from principal_boundary_flows import principal_boundary
 from centroid_finder import sphere_centroid_finder_vecs
 
 '''
@@ -25,8 +26,8 @@ from centroid_finder import sphere_centroid_finder_vecs
 
 # Constants #
 
-DIGIT = 3
-SAMPLES = 100
+DIGIT = 7
+SAMPLES = 1000
 
 # Data #
 
@@ -67,12 +68,27 @@ final_p_img = final_p.reshape(28, 28)
 plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
 plt.show()
 
-# Find principal flow and display first 27 images of flow obtained #
-h = choose_h_gaussian(sampled_X_on_sphere, final_p, 90) # needs to be very high!
-curve = principal_flow(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, \
-    flow_num=1, start_point=final_p, kernel_type="gaussian", max_iter=20)
-for j in range(4):
+h = choose_h_gaussian(sampled_X_on_sphere, final_p, 85) # needs to be very high!
+radius = choose_h_binary(sampled_X_on_sphere, final_p, 40)
+upper, curve, lower = principal_boundary(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, radius, \
+    start_point=final_p, kernel_type="gaussian", max_iter=20)
+
+print("upper")
+for j in range(3):
+    for i in range(9):
+        plt.subplot(330 + 1 + i)
+        plt.imshow(upper[i + 9*j].reshape(28, 28), cmap=plt.get_cmap('gray'))
+    plt.show()
+
+print("curve")
+for j in range(3):
     for i in range(9):
         plt.subplot(330 + 1 + i)
         plt.imshow(curve[i + 9*j].reshape(28, 28), cmap=plt.get_cmap('gray'))
+    plt.show()
+print("lower")
+for j in range(3):
+    for i in range(9):
+        plt.subplot(330 + 1 + i)
+        plt.imshow(lower[i + 9*j].reshape(28, 28), cmap=plt.get_cmap('gray'))
     plt.show()
