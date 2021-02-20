@@ -1,4 +1,3 @@
-%++++++++++++++++++++++++++++++++++++++++
 % Don't modify this section unless you know what you're doing!
 \documentclass[12pt]{report}
 \usepackage[utf8]{inputenc}
@@ -29,7 +28,6 @@
 }
 \usepackage{setspace}
 \doublespacing
-%++++++++++++++++++++++++++++++++++++++++
 
 \begin{document}
 
@@ -58,8 +56,16 @@ Principal Flows are a great tool to use when we want to extend the notion of Pri
 
 For principal flows or motivation for coding algorithm?
 
-With the advent of Big Data, using machine learning on multivariate datasets to solve problems from disparate fields has grown in popularity.
-Unsupervised learning has also grown in popularity, Principal Component Analysis being the most popular algorithm. However, if it is given data that lie on some manifold, or a non-linear space, PCA fails to achieve good results. This is why we want to use Principal flows: in essence they are a generalisation of PCA to manifolds. Furthermore, in keeping with the trends of the data science field, we want to use a popular language, python to construct these principal flows.
+With the advent of Big Data, using machine learning on multivariate datasets 
+to solve problems from disparate fields has grown in popularity.
+Unsupervised learning has also grown in popularity, 
+Principal Component Analysis being the most popular algorithm. 
+However, if it is given data that lie on some manifold, or a non-linear space, 
+PCA fails to achieve good results. 
+This is why we want to use Principal flows: 
+in essence they are a generalisation of PCA to manifolds. 
+Furthermore, in keeping with the trends of the data science field, 
+we want to use a popular language, python to construct these principal flows.
 
 \section{Background and Definitions}
 
@@ -84,6 +90,7 @@ $p$               & Denotes a point on the manifold, M.                       \\
 $T_pM$            & Denotes the Tangent space of a point p on the Manifold.   \\ \hline
 \textbf{S}        & Denotes a Covariance matrix                               \\ \hline
 \{x\_1,...x\_n\}  & Denotes a collection of points on the manifold, M.        \\ \hline
+$\mathbf{1}$      & Denotes a vector of 1s.                                   \\ \hline
 \end{tabular}
 \end{table}
 
@@ -154,48 +161,93 @@ Here we also note that for any 2 eigenvectors $v_i$ and $v_j$, $v_i \cdot v_j = 
 
 \chapter*{Literature Review}
 
-should be 4 pages long
-
 \section{Linear Dimension Reduction}
 
-\textbf{Linear Dimensionality Reduction\footnote{This definition from \href{https://jmlr.csail.mit.edu/papers/volume16/cunningham15a/cunningham15a.pdf}{here}.}:} \textit{Given $n$ D-dimensional data points: $\textbf{X}= [x_1,....x_n]^T \in \mathbb{R}^{n \times D}$ and a choice of dimensionality $d < D$, optimise some objective function $f_X(\Dot{})$ to produce a linear transformation $P \in \mathbb{R}^{p \times r}$ and call $Y = XP \in \mathbb{R}^{n \times d}$}
+\textbf{Linear Dimensionality Reduction
+\footnote{This definition from 
+\href{https://jmlr.csail.mit.edu/papers/volume16/cunningham15a/cunningham15a.pdf}{here}.}:} 
+\textit{Given $n$ D-dimensional data points: $\textbf{X}= [x_1,....x_n]^T \in \mathbb{R}^{n \times D}$ 
+and a choice of dimensionality $d < D$, optimise some objective function $f_X(\Dot{})$ 
+to produce a linear transformation $P \in \mathbb{R}^{p \times r}$ and call 
+$Y = XP \in \mathbb{R}^{n \times d}$}
 
 \subsection{Principal Component Analysis}
 
-\textbf{Principal Component analysis} is a linear dimension reduction method that tries to obtain a lower-dimensional representation of the data that retains as much variation as possible present in the data set. PCA does this by constructing principal components (PCs) which are linear combinations of the original variables. These PCs are uncorrelated (orthogonal) and ordered in descending order by the amount of variation retained. Then reducing some high-dimensional data of dimension $D$ to a lower dimensional $d$ is simply a matter of computing the first $d$ principal components.\\
+\textbf{Principal Component analysis} is a linear dimension reduction method 
+that tries to obtain a lower-dimensional representation of the data 
+that retains as much variation as possible present in the data set. 
+PCA does this by constructing principal components (PCs) 
+which are linear combinations of the centered original variables. Note that centering
+each column is the same as finding the "mean" 
+observation and subtracting that from every observation: $x_i - \bar{x}$, 
+since $\bar{x}$ contains the means of every column.
+These PCs are uncorrelated (orthogonal) and ordered in descending order 
+by the amount of variation retained. 
+Then, reducing some high-dimensional data of dimension $D$ to a lower dimensional $d$ 
+is simply a matter of computing the first $d$ principal components.\\
 \textbf{Algorithm}
 \begin{itemize}
-    \item 1. First we center the data matrix, \textbf{X}, by 
+    \item 1. First we center the data matrix, \textbf{X}, by centering each column of \textbf{X}.
     \item 2. Next we compute the covariance matrix of the centered data matrix.
-    \item 3. Now we diagonalise the covariance matrix and take the first d eigenvectors. Let these d eigenvectors be the columns of a matrix $\textbf{V}_d$.
+    \item 3. Now we diagonalise the covariance matrix and take the first d eigenvectors. 
+    Let these d eigenvectors be the columns of a matrix $\textbf{V}_d$.
     \item 4. Multiply \textbf{X} by $\textbf{V}_d$ to obtain the d principal components.
 \end{itemize}
 
 \subsection{Classical MDS, Euclidean Distance}
 
-\textbf{Multidimensional Scaling} is a linear dimensionality reduction method. Its main aim is to take some high dimensional data, \textbf{X} and find some low dimensional points so as to minimize the discrepancy between the pairwise distances in the original space and the pairwise distances in the lower-dimensional space. \\
-Let a squared dissimilarity matrix between n points be $\textbf{M} \in \mathbb{R}^{n \times n}$, let the matrix of coordinates be denoted by $\textbf{X} \in \mathbb{R}^{n \times D}$, and let $\textbf{B} = \textbf{X}\textbf{X}'$. Since dissimilarities do not change under translations, we assume that \textbf{X} has column means equal to 0. MDS seeks to find a lower dimensional representation $\textbf{X}_{(d)} \in \mathbb{R}^{n \times d}$.\\
+\textbf{Multidimensional Scaling} is a linear dimensionality reduction method. 
+Its main aim is to take some high dimensional data, \textbf{X} 
+and find some low dimensional points so as to minimize the discrepancy 
+between the pairwise distances in the original space and the pairwise distances 
+in the lower-dimensional space. \\
+Let a squared dissimilarity matrix between n points be 
+$\textbf{M} \in \mathbb{R}^{n \times n}$, 
+let the matrix of coordinates be denoted by 
+$\textbf{X} \in \mathbb{R}^{n \times D}$, 
+and let $\textbf{B} = \textbf{X}\textbf{X}'$. 
+Since dissimilarities do not change under translations, 
+we assume that \textbf{X} has column means equal to 0. 
+MDS seeks to find a lower dimensional representation 
+$\textbf{X}_{(d)} \in \mathbb{R}^{n \times d}$.\\
 Algorithm: from 2005 Book Modern Multidimensional Scaling, pg 262
 \begin{itemize}
     \item 1. Compute or obtain the dissimilarity matrix, \textbf{D}.
     \item 2. Let \textbf{J} be the centering matrix: $\textbf{J} = \textbf{I} - n^{-1}\mathbf{1}\mathbf{1}'$. Compute $\textbf{B} = -\frac{1}{2}\textbf{J}\textbf{D}\textbf{J}$.
     \item 3. Then, compute the eigendecomposition of \textbf{B}: $\textbf{B} = \textbf{V}\mathbf{\Lambda}\textbf{V}'$. 
-    \item 4. Then $\textbf{X} = \mathbf{\Lambda}^{1/2}\textbf{V}'$ and for a q-dimensional representation  of \textbf{X}: $\textbf{X}_{(p)}$, $\textbf{X}_{(p)} = \mathbf{\Lambda}^{1/2}_p\textbf{V'}_p$, where $\mathbf{\Lambda}^{1/2}_p$ is the first $p \times p$ submatrix of $\Lambda$, and $\textbf{V'}_p$ is the first p columns of \textbf{V}', i.e the first q eigenvectors and their corresponding eigenvalues.
+    \item 4. Then $\textbf{X} = \mathbf{\Lambda}^{1/2}\textbf{V}'$ 
+    and for a d-dimensional representation of 
+    \textbf{X}: $\textbf{X}_{(d)}$, $\textbf{X}_{(d)} = \mathbf{\Lambda}^{1/2}_d\textbf{V'}_d$, 
+    where $\mathbf{\Lambda}^{1/2}_d$ is the first $d \times d$ submatrix of $\Lambda$,
+     and $\textbf{V'}_p$ is the first d columns of \textbf{V}', 
+     i.e the first d eigenvectors and their corresponding eigenvalues.
 \end{itemize}
 Note that using Euclidean distances, the result of MDS is the same as PCA.
-Advantages of MDS over PCA: If we have $n << p$, then MDS is likely to be more efficient, since MDS finds eigenvectors of a $n \times n$ matrix and a $p \times p$ matrix respectively. (From 2002 book on Principal Component Analysis)
-MDS simple to implement, and their optimizations do not involve local minima despite their inherent limitations as linear methods.
+Advantages of MDS over PCA: If we have $n << p$, then MDS is likely to be more efficient, 
+since MDS finds eigenvectors of a $n \times n$ matrix and a $p \times p$ matrix respectively. 
+(From 2002 book on Principal Component Analysis)
+MDS simple to implement, and their optimizations 
+do not involve local minima despite their inherent limitations as linear methods.
 
 \section{Non-Linear Dimension Reduction}
 
-Non-linear dimensionality reduction methods are particularly useful when the multivariate data we obtain is sampled from a smooth non-linear manifold, e.g a manifold in an S-shape, obtains better estimates than linear methods like PCA and MDS, which implicitly assume that the data is sampled from a linear space. Certain data sets contain essential nonlinear structures that are invisible to PCA and MDS.
+Non-linear dimensionality reduction methods are particularly useful 
+when the multivariate data we obtain is sampled from a smooth non-linear manifold, 
+e.g a manifold in an S-shape, obtains better estimates than linear methods like PCA and MDS, 
+which implicitly assume that the data is sampled from a linear space. 
+Certain data sets contain essential nonlinear structures that are invisible to PCA and MDS.
 
 \newpage
 
 \subsection{Principal Geodesic Analysis}
 
-Principal Geodesic Analysis(PGA) is a generalization of principal component analysis to connected, complete manifolds. The main aim of PGA is to be able to describe the variability of some data lying on some manifold M. More formally, the goal is to find a sequence of lower-dimensional subspaces, which on manifolds are nested geodesic submanifolds that maximize the projected variance of the data. These submanifolds are called the principal geodesic submanifolds, which are analogous to linear subspaces for PCA.\\
-\\
+Principal Geodesic Analysis(PGA) is a generalization of principal component analysis to connected, 
+complete manifolds. The main aim of PGA is to be able to 
+describe the variability of some data lying on some manifold M. 
+More formally, the goal is to find a sequence of lower-dimensional subspaces, 
+which on manifolds are nested geodesic submanifolds that maximize the projected variance of the data. 
+These submanifolds are called the principal geodesic submanifolds, 
+which are analogous to linear subspaces for PCA.\\
 Let $T_pM$ be the tangent space of M at the intrinsic mean $p$ of the $x_i$. The intrinsic mean of some data \textbf{X} lying on some manifold is obtained by first setting the initial mean to a random data point, then iteratively obtaining a better estimation of the intrinsic mean by computing the average of the vectors obtained using the log map at the current mean on all data points, then taking the next estimate of the intrinsic mean as the projection of that average using the exponential map at the current estimate.\\
 Let $U \subset T_pM$ be a neighbourhood of 0 in which our data, $\{x_1,...x_n\}$ lies, such that projection is well defined for all geodesic submanifolds of $exp_p(U)$.These principal geodesic submanifolds are obtained by by first constructing an orthonormal basis of tangent vectors $v_1,...,v_d \in T_pM$ that span the tangent space. These vectors are then used to form the principal geodesic subspaces $H_k$ where $H_k = exp_p(V_k)$, and $V_k$ is intersection of the subspace spanned by vectors $1..k$ and $U$.
 subspace $V_k = span(\{v_1,...,v_k\})\bigcap U$.\\
@@ -213,24 +265,46 @@ subspace $V_k = span(\{v_1,...,v_k\})\bigcap U$.\\
 
 \textbf{Locally Linear Embedding} 
 \\
-The main idea of LLE is to construct a neighbourhood preserving mapping of the original points of dimension $D$ to the reconstructed points of dimension $d$. We assume that for some data $\textbf{X} \in \mathbb{R}^{D}$, the data lie on or near a smooth manifold of dimensionality $d << D$. Locally, LLE assumes the embedding is linear, and thus for each data point $p \in \mathbb{R}^D$, we aim to use a linear combination of its K nearest neighbours to reconstruct a lower-dimensional $p \in \mathbb{R}^d$. LLE does this by first learning some reconstruction weights from the D-dimensional data: $\textbf{W}$ where $\textbf{W}_{ij}$ represents the contribution of the j-th data point in reconstructing the i-th one. These weights obey an important symmetry: for any particular data point, they are invariant to rotations, rescalings, and translations of that data point and its neighbors. They thus reflect intrinsic geometric properties of the  It then uses the same weights $\textbf{W}_{ij}$ that reconstruct the ith data point in $D$ dimensions to also reconstruct its embedded manifold coordinates in $d$ dimensions. (Should I explain why LLE does this?) At the end of LLE, each  D-dimensional observation $\textbf{X}_i$ is mapped to a low dimensional vector $\textbf{Y}_i$ representing global internal coordinates on the manifold.
-
-Embedding Cost Function:
-$$\Phi(\textbf{Y}) = \sum_i |\textbf{Y}_i - \sum_j \textbf{W}_{ij}\textbf{Y}_j|^2$$
-
+The main idea of LLE is to construct a neighbourhood preserving mapping 
+of the original points of dimension $D$ to the reconstructed points of dimension $d$. 
+We assume that for some data $\textbf{X} \in \mathbb{R}^{D}$, 
+the data lie on or near a smooth manifold of dimensionality $d << D$. 
+Locally, LLE assumes the embedding is linear, and thus for each data point $p \in \mathbb{R}^D$, 
+we aim to use a linear combination of its K nearest neighbours to reconstruct a lower-dimensional $p \in \mathbb{R}^d$. 
+LLE does this by first learning some reconstruction weights from the D-dimensional data: $\textbf{W}$ 
+where $\textbf{W}_{ij}$ represents the contribution of the j-th data point in reconstructing the i-th one. 
+These weights obey an important symmetry: for any particular data point, 
+they are invariant to rotations, rescalings, and translations of that data point and its neighbors.
+They thus reflect intrinsic geometric properties of the data that are invariant to exactly such transformations,
+and therefore, we expect their characterization of local geometry in the 
+original data space to be equally valid for local patches on the manifold.
+This is what motivates $\textbf{W}_{ij}$ to be used to reconstruct
+the embedded manifold coordinates in $d$ dimensions. 
+At the end of LLE, each  D-dimensional observation $\textbf{X}_i$ 
+is mapped to a low dimensional vector $\textbf{Y}_i$ 
+representing global internal coordinates on the manifold.\\
 \textbf{LLE Algorithm:}
 \begin{itemize}
     \item 1. Compute the K nearest Neighbors of each original data point $\textbf{X}_i$, where K is a hyperparameter.
     \item 2. Compute the weights $\textbf{W}_{ij}$ that best reconstruct each data point from it's neighbours minimizing the \textbf{Reconstruction Error} below by constrained linear fits.
 $$\varepsilon (\textbf{W}) = \sum_i|\textbf{X}_i - \sum_j \textbf{W}_{ij} \textbf{X}_j|^2$$
-    \item 3. Compute the vectors $\textbf{Y}_i$ best reconstructed by the weights $\textbf{W}_{ij}$ by minimising the quadratic form in eq (2) by its bottom $d$ non-zero eigenvectors.
+    \item 3. Compute the vectors $\textbf{Y}_i$ best reconstructed by the weights $\textbf{W}_{ij}$ 
+    by minimising the embedding cost function: $$\Phi(\textbf{Y}) = \sum_i |\textbf{Y}_i - \sum_j \textbf{W}_{ij}\textbf{Y}_j|^2$$
+    This is minimised by solving a sparse $N \times N$ eigenvector problem whose bottom d non-zero eigenvectors provide
+    an ordered set of orthogonal coordinates centered on the origin.
 \end{itemize}
 
 \newpage
 
 \subsection*{Isomap}
 
-Isomap is an approach that combines the major algorithmic features of PCA and MDS — computational efficiency, global optimality, and asymptotic convergence guarantees—with the flexibility to learn a broad class of nonlinear manifolds. It can be thought of as an extension of MDS to manifolds. Isomap achieves this by estimating the geodesic distance between data points, given only input-space distances, e.g euclidean distance between points.\\
+Isomap is an approach that combines the major algorithmic features of PCA and MDS
+ — computational efficiency, global optimality, 
+ and asymptotic convergence guarantees — 
+ with the flexibility to learn a broad class of nonlinear manifolds. 
+ It can be thought of as an extension of MDS to manifolds. 
+ Isomap achieves this by estimating the geodesic distance between data points, 
+ given only input-space distances, e.g euclidean distance between points.\\
 \\
 This relies on the fact that for neighboring points, input-space distance provides a good approximation to geodesic distance. For faraway points, Isomap approximates geodesic distance by adding up a sequence of “short hops” between neighboring points, computed efficiently by finding shortest paths in a graph with edges connecting neighboring data points.  This approximation relies on the proof that for a sufficiently high density (a) of data points, we can always choose a neighborhood size (e or K) large enough that the graph will (with high probability) have a path not much longer than the true geodesic, but small enough to prevent edges that “short circuit” the true geometry of the manifold.\\
 \textbf{Isomap Algorithm}:
@@ -244,25 +318,68 @@ This relies on the fact that for neighboring points, input-space distance provid
 
 \section{Problem Statement}
 
-The main objective for greedy principal flows was to quantify or describe multivariate data on the manifold: we cannot simply fit a line, as this is not Euclidean space. Instead, we want some curve or path such that, locally, it follows the path of maximal variation of the data. This is done by taking the largest eigenvector from the diagonalisation of the covariance matrix. This can be thought of as the manifold extension of the euclidean 1st principal component.
-
-Problem statement: 
+The main objective for greedy principal flows was to quantify or describe 
+multivariate data on the manifold: we cannot simply fit a line, 
+as this is not Euclidean space.
+Instead, we want some curve or path such that, 
+locally, it follows the path of maximal variation of the data. 
+This is done by taking the largest eigenvector from the diagonalisation of the covariance matrix.
+This can be thought of as the manifold extension of the euclidean 1st principal component.
 
 \section{An explanation of the algorithm}
 
-Algorithm explanation: 
-Assume for now that our data, \textbf{X} lies on the hypersphere. We know that the first principal component passes through the centroid of the data. We want our principal flow to do the same. Thus, we first need to find the centroid of the data. Start at an arbitrary data point, p. Then we project all other data points onto $T_pM$, then calculate the covariance matrix of the points on $T_pM$ and find the first eigenvector from diagonalisation, and move in that direction. 
-
+Throughout we will assume that \textbf{X} lies on the hypersphere. 
+To find our principal flow, we first need a starting point. Since our principal flow 
+follows the path of maximal variation of our data, 
+we know it should pass through the centroid of the data. 
+Thus, we first aim to find or estimate this centroid.
+Although there are many ways of doing this, we opt to make use of the fact that 
+the first principal component passes through the centroid of the data. Thus, if we 
+iteratively project all the data onto the tangent space of the hypersphere, 
+find the 1st principal direction, move in that direction, 
+and find the projected point on the hypersphere, we will eventually converge on the 
+centroid.
+\\
+\textbf{Centroid Algorithm}:
+\begin{itemize}
+    \item 1. Let $p = x_i$, a random data point.
+    \item 2. Compute $log_p(x_i)$ for all $x_i$, and let these vectors be the rows of the matrix $\bar{\textbf{X}}$.
+    \item 3. Calculate the covariance matrix of $\bar{\textbf{X}}$.
+    \item 4. Diagonalise the matrix, then save the eigenvector corresponding to the largest eigenvector, $\textbf{v}_1$.
+    \item 5. Move in the direction of $\textbf{v}_1$ a step size of $\epsilon$, $p' = p + \epsilon \textbf{v}_1$.
+    \item 6. Let $p = exp_p(p')$.
+\end{itemize}
 Then we start from that centroid, and build our principal flow from there.
+Our aim is to find the path of maximal variation of the data.\\
+\textbf{Problem}:\\
+What if our data stretches all around the hypersphere? How do we deal with projecting
+data through the sphere?\\
+Instead of taking all data into consideration, we choose a small neighborhood around
+our centroid, whose size is controlled by h. Thus, we
+project the data within some neighbourhood $\textbf{X}_h$ onto the tangent space 
+at the centroid, p: $T_pM$. We use the logarithm map, $log_p$ to do this. Then the path of maximal variation 
+in this neighbourhood of points is the first principal direction of this data from PCA. 
+This direction is obtained by diagonalising the covariance matrix of the data on this tangent
+space. \\
+\textbf{Problem}:\\
+This direction clearly is not accurate if we only move in this direction,
+since it will eventually lead us out of the surface of the hypersphere, and even on the 
+hypersphere, the neighbourhood of points may differ, and change the direction 
+of the path of maximal variation.\\
+Thus, instead of only using this direction, we move infinitesimally in this first direction,
+then carry out the same procedure again. Thus we iteratively find the "local"
+direction of maximal variation, move in that direction, and re-compute the next direction
+of maximal variation. We continue doing this until we have obtained a flow through the
+entire data set.\\
+This does indeed follow the framework that isomap and LLE abide by
+as well: that obtaining the best option locally becomes the best option globally as well. 
+This is exactly the idea of this Greedy Principal flow algorithm. 
 
 \section{Algorithm Steps}
-
-Defn: The Principal Flow of the dataset is basically an integral curve that is always tangent to the direction of 'maximal variation' at any given point it contains.
+Defn: The Principal Flow of the dataset is basically an integral curve 
+that is always tangent to the direction of 'maximal variation' at any given point 
+it contains.
 \begin{itemize}
-    \item Computes the principal flow of the dataset. 
-    Idea: This is a "greedy" implementation of the principal flow 
-    algorithm, developed originally by Professor Yao Zhi Gang.
-    
     \item We assume the underlying structure of the data is a hypersphere.
     Starting from the centroid of the data set (user defined or calculated below), we apply the following procedure: 
     \item 1. Project the data residing on the hypersphere onto the hyperplane
@@ -285,6 +402,8 @@ Defn: The Principal Flow of the dataset is basically an integral curve that is a
 \end{itemize}
 
 \chapter*{Principal Boundary}
+
+In the section above, we have already seen the principal flow.
 
 \begin{itemize}
     \item Computes the principal flow of the dataset. 
@@ -318,7 +437,7 @@ Defn: The Principal Flow of the dataset is basically an integral curve that is a
 Talk about how data is generated
 \subsection{Toy Data}
 
-First we generate some toy data
+First we generate some toy data. The data is generated by 
 
 \includegraphics[]{Data_13.png}
 
@@ -326,7 +445,8 @@ With the principal flow in red.
 
 \includegraphics[]{single_flow_13.png}
 
-We can see that the principal flow accurately reconstructs the toy data, the s curve on the sphere.
+We can see that the principal flow accurately reconstructs the toy data, 
+the s curve on the sphere.
 
 \subsection{Noisy Toy Data}
 
@@ -350,7 +470,6 @@ P. Thomas Fletcher, Conglin Lu, Stephen M. Pizer and Sarang Joshi \textit{Princi
 Nonlinear Statistics of Shape}
 
 \bibitem{isomap}
-
 
 
 \end{thebibliography}

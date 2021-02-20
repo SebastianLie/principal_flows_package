@@ -27,7 +27,7 @@ truck
 # Constants #
 
 DIGIT = 3
-SAMPLES = 200
+SAMPLES = 2000
 
 # Data #
 
@@ -144,23 +144,23 @@ plt.show()
 h = choose_h_gaussian(sampled_X_on_sphere, final_p, 85) # needs to be very high!
 radius = choose_h_binary(sampled_X_on_sphere, final_p, 40)
 upper, curve, lower = principal_boundary(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, radius, \
-    start_point=final_p, kernel_type="gaussian", max_iter=20)
+    start_point=final_p, kernel_type="gaussian", max_iter=40)
 
 print("upper")
-for j in range(3):
+for j in range(5):
     for i in range(9):
         plt.subplot(330 + 1 + i)
         plt.imshow(upper[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
     plt.show()
 
 print("curve")
-for j in range(3):
+for j in range(5):
     for i in range(9):
         plt.subplot(330 + 1 + i)
         plt.imshow(curve[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
     plt.show()
 print("lower")
-for j in range(3):
+for j in range(5):
     for i in range(9):
         plt.subplot(330 + 1 + i)
         plt.imshow(lower[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
