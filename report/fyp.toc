@@ -12,7 +12,7 @@
 \contentsline {section}{\numberline {2.1}Linear Dimension Reduction}{11}{section.2.1}%
 \contentsline {subsection}{\numberline {2.1.1}Principal Component Analysis}{11}{subsection.2.1.1}%
 \contentsline {subsection}{\numberline {2.1.2}Classical MDS, Euclidean Distance}{12}{subsection.2.1.2}%
-\contentsline {section}{\numberline {2.2}Non-Linear Dimension Reduction}{13}{section.2.2}%
+\contentsline {section}{\numberline {2.2}Non-Linear Dimension Reduction}{12}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Principal Geodesic Analysis}{14}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Locally Linear Embedding}{15}{subsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.2.3}Isomap}{17}{subsection.2.2.3}%

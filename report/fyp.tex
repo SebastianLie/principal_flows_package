@@ -60,7 +60,7 @@ that is even closer to its canonical PCA interpretation.
 
 With the advent of Big Data, using machine learning on multivariate datasets 
 to solve problems from disparate fields has grown in popularity. Although 
-most problems take the form of classification or regression problems 
+most problems take the form of classification or regression problems, 
 Unsupervised learning has also grown in popularity, 
 Principal Component Analysis being the most popular algorithm. 
 However, if it is given data that lie on some manifold, or a non-linear space, 
@@ -80,16 +80,16 @@ We first define notation and some important concepts we will use later.
 \begin{tabular}{|l|l|}
 \hline
 \textbf{Notation} & \textbf{Explanation}                                      \\ \hline
-$\mathbb{R}^D$    & D dimensional space of real numbers.                      \\ \hline
-\textbf{X}        & Data Matrix, D dimensions                                 \\ \hline
+$\mathbb{R}^D$    &$D$dimensional space of real numbers.                      \\ \hline
+$\textbf{X}$        & Data Matrix, $D$ dimensions                                 \\ \hline
 $D$                & The original dimension of the data matrix                 \\ \hline
-$d$               & Dimension of lower dimensional data which X is reduced to \\ \hline
-$\mathcal{M}^d$      & Denotes a connected and complete d-dimensional manifold
+$d$               & Dimension of lower dimensional data which $\textbf{X}$ is reduced to \\ \hline
+$\mathcal{M}^d$      & Denotes a connected and complete $d$-dimensional manifold
                    embedded in $\mathbb{R}^D$                                 \\ \hline
 $p$               & Denotes a point on the manifold, $\mathcal{M}^d$.            \\ \hline
-\textbf{v}        & Denotes a vector.                                         \\ \hline
+$\textbf{v}$        & Denotes a vector.                                         \\ \hline
 $T_pM$            & Denotes the Tangent space of a point p on $\mathcal{M}^d$.   \\ \hline
-\textbf{S}        & Denotes a Covariance matrix.                               \\ \hline
+$\textbf{C}$        & Denotes a Covariance matrix.                               \\ \hline
 $\{x_1,...x_n\}$  & Denotes a collection of n data points.        \\ \hline
 $\mathbf{1}$      & Denotes a vector of 1s.                                   \\ \hline
 $\textbf{I}$      & Denotes the identity matrix.                               \\ \hline
@@ -101,28 +101,28 @@ $M^T$             & Denotes the transpose of a some matrix M.                 \\
 
 \section{Definitions}
 
-First we define the notion of vector fields.
-
 \subsection{Vector Fields}
-A vector \textit{at point p}, $p \in \mathbb{R}^{D}$ is a pair 
-$\textbf{v} = (p, v), \ v \in \mathbb{R}^{D}$, such that $\mathbf{v}$ 
-is the vector $v$ translated so that its tail is at $p$ instead of the origin. 
+A vector at point p, $p \in \mathbb{R}^{D}$ is a pair 
+$\textbf{a} = (\textbf{p}, \textbf{v}), \ \textbf{v} \in \mathbb{R}^{D}$, 
+such that $\mathbf{v}$ is the vector $v$ translated 
+so that its tail is at $p$ instead of the origin. 
 All vector operations are defined such that the first item of the pair remains the same, 
 and the second item is the result of the operation. 
-The length and angle between 2 vectors are the same as normal vectors rooted in the origin.
-\textbf{Definition:} A \textit{vector field} \textbf{X} on 
-$U \subset \mathbb{R}^{n+1}$ is a function which assigns to each point
+The length and angle between 2 vectors are the same 
+as normal vectors rooted in the origin.\\
+\textbf{Definition:} A \textit{vector field} $\textbf{F}$ on 
+$U \subset \mathbb{R}^{D}$ is a function which assigns to each point
 of U a vector at that point. Then
-$$\textbf{X}(p) = (p, X(p))$$ for some function 
-$X: U \longrightarrow \mathbb{R}^{n+1}$. Vector fields on 
-$\mathbb{R}^{n+1}$ are often most easily described by 
-specifying this associated function X.
+$$\textbf{F}(p) = (p, F(p))$$ for some function 
+$F: U \longrightarrow \mathbb{R}^{D}$. Vector fields on 
+$\mathbb{R}^{D}$ are often most easily described by 
+specifying this associated function $F$.
 A pictoral example of a vector field is below.
 \begin{figure}[h]
     \begin{center}
         \includegraphics[scale=0.5]{fig2.5.PNG}
         \caption{An example of a vector field, $\mathbb{R}^3$}
-        \label{fig:Graph 4}
+        \label{fig:vectorfield}
     \end{center}
 \end{figure}
 
@@ -165,7 +165,7 @@ p on the $\mathcal{M}^d$ lie.
 
 \subsection{Geodesics}
 
-Geodesics are curves in d-surfaces or on d-dimensional manifolds
+Geodesics are curves on $\mathcal{M}^d$
 which play the same role as straight
 lines in $\mathbb{R}^d$. They can be thought of as the "shortest path
 between 2 points on the manifold, $\mathcal{M}^d$.\\
@@ -186,12 +186,14 @@ in the Euclidean space to Manifolds.
 
 
 \subsection{Eigenvalues and Eigenvectors}
-Now we define eigenvalues and eigenvectors.
+Now we define eigenvalues and eigenvectors.\\
 \textbf{Definition}: Let $\textbf{A} \in \mathbb{R}^{n \times n}$. 
 Then a non-zero vector \textbf{v} is an eigenvector of \textbf{A} 
 if there exists some scalar $\lambda$ such that $\textbf{A}\textbf{v} = \lambda \textbf{v}$. 
 Then $\lambda$ is known as the eigenvalue corresponding to vector \textbf{v}.\\
 \\
+In this report, we talk only about the eigenvectors and eigenvalues 
+of some Covariance matrix, \textbf{C}.
 Here we also note that for any 2 eigenvectors $v_i$ and $v_j$, $i \neq j$, $v_i \cdot v_j = 0$, 
 or any 2 eigenvectors are orthogonal to each other, and that $v_i \cdot v_i = 1$.
 
@@ -226,17 +228,17 @@ Then, reducing some high-dimensional data of dimension $D$ to a lower dimensiona
 is simply a matter of computing the first $d$ principal components.\\
 \textbf{Algorithm}
 \begin{itemize}
-    \item 1. First we center the data matrix, \textbf{X}, by centering each column of \textbf{X}.
+    \item 1. First we center the data matrix, $\textbf{X}$, by centering each column of $\textbf{X}$.
     \item 2. Next we compute the covariance matrix of the centered data matrix.
-    \item 3. Now we diagonalise the covariance matrix and take the first d eigenvectors. 
-    Let these d eigenvectors be the columns of a matrix $\textbf{V}_d$.
-    \item 4. Multiply \textbf{X} by $\textbf{V}_d$ to obtain the d principal components.
+    \item 3. Now we diagonalise the covariance matrix and take the first$D$eigenvectors. 
+    Let these$D$eigenvectors be the columns of a matrix $\textbf{V}_d$.
+    \item 4. Multiply $\textbf{X}$ by $\textbf{V}_d$ to obtain the$D$principal components.
 \end{itemize}
 
 \subsection{Classical MDS, Euclidean Distance}
 
 \textbf{Multidimensional Scaling} is a linear dimensionality reduction method. 
-Its main aim is to take some high dimensional data, \textbf{X} 
+Its main aim is to take some high dimensional data, $\textbf{X}$ 
 and find some low dimensional points so as to minimize the discrepancy 
 between the pairwise distances in the original space and the pairwise distances 
 in the lower-dimensional space. \\
@@ -244,29 +246,27 @@ Let a squared dissimilarity matrix between n points be
 $\textbf{M} \in \mathbb{R}^{n \times n}$, 
 let the matrix of coordinates be denoted by 
 $\textbf{X} \in \mathbb{R}^{n \times D}$, 
-and let $\textbf{B} = \textbf{X}\textbf{X}'$. 
+and let $\textbf{B} = \textbf{X}^T\textbf{X}$.
 Since dissimilarities do not change under translations, 
-we assume that \textbf{X} has column means equal to 0. 
+we assume that $\textbf{X}$ has column means equal to 0. 
 MDS seeks to find a lower dimensional representation 
 $\textbf{X}_{(d)} \in \mathbb{R}^{n \times d}$.\\
 Algorithm: from 2005 Book Modern Multidimensional Scaling, pg 262
 \begin{itemize}
-    \item 1. Compute or obtain the dissimilarity matrix, \textbf{D}.
-    \item 2. Let \textbf{J} be the centering matrix: $\textbf{J} = \textbf{I} - n^{-1}\mathbf{1}\mathbf{1}'$. Compute $\textbf{B} = -\frac{1}{2}\textbf{J}\textbf{D}\textbf{J}$.
-    \item 3. Then, compute the eigendecomposition of \textbf{B}: $\textbf{B} = \textbf{V}\mathbf{\Lambda}\textbf{V}'$. 
-    \item 4. Then $\textbf{X} = \mathbf{\Lambda}^{1/2}\textbf{V}'$ 
+    \item 1. Compute or obtain the dissimilarity matrix, \textbf{M}.
+    \item 2. Let \textbf{J} be the centering matrix: 
+    $\textbf{J} = \textbf{I} - n^{-1}\mathbf{1}\mathbf{1}^T$. 
+    Compute $\textbf{B} = -\frac{1}{2}\textbf{J}\textbf{D}\textbf{J}$.
+    \item 3. Then, compute the eigendecomposition of \textbf{B}: 
+    $\textbf{B} = \textbf{V}\mathbf{\Lambda}\textbf{V}^T$. 
+    \item 4. Then $\textbf{X} = \mathbf{\Lambda}^{1/2}\textbf{V}^T$ 
     and for a d-dimensional representation of 
-    \textbf{X}: $\textbf{X}_{(d)}$, $\textbf{X}_{(d)} = \mathbf{\Lambda}^{1/2}_d\textbf{V'}_d$, 
+    $\textbf{X}$: $\textbf{X}_{(d)}$, $\textbf{X}_{(d)} = \mathbf{\Lambda}^{1/2}_d\textbf{V}^T_d$, 
     where $\mathbf{\Lambda}^{1/2}_d$ is the first $d \times d$ submatrix of $\Lambda$,
-     and $\textbf{V'}_p$ is the first d columns of \textbf{V}', 
-     i.e the first d eigenvectors and their corresponding eigenvalues.
+     and $\textbf{V}^T_p$ is the first$D$columns of $\textbf{V}^T$, 
+     i.e the first $d$ eigenvectors and their corresponding eigenvalues.
 \end{itemize}
 Note that using Euclidean distances, the result of MDS is the same as PCA.
-Advantages of MDS over PCA: If we have $n << p$, then MDS is likely to be more efficient, 
-since MDS finds eigenvectors of a $n \times n$ matrix and a $p \times p$ matrix respectively. 
-(From 2002 book on Principal Component Analysis)
-MDS simple to implement, and their optimizations 
-do not involve local minima despite their inherent limitations as linear methods.
 
 \section{Non-Linear Dimension Reduction}
 
@@ -290,7 +290,7 @@ that maximize the projected variance of the data.
 These submanifolds are called the principal geodesic submanifolds, 
 which are analogous to linear subspaces for PCA.\\
 Let $T_pM$ be the tangent space of $\mathcal{M}$ at the intrinsic mean $p$ of the $x_i$. 
-The intrinsic mean of some data \textbf{X} lying on some manifold is obtained 
+The intrinsic mean of some data $\textbf{X}$ lying on some manifold is obtained 
 by first setting the initial mean to a random data point, 
 then iteratively obtaining a better estimation of the intrinsic mean 
 by computing the average of the vectors obtained using the log map at 
@@ -352,7 +352,7 @@ $$\varepsilon (\textbf{W}) = \sum_i|\textbf{X}_i - \sum_j \textbf{W}_{ij} \textb
     by minimising the embedding cost function: 
     $$\Phi(\textbf{Y}) = \sum_i |\textbf{Y}_i - \sum_j \textbf{W}_{ij}\textbf{Y}_j|^2$$
     This is minimised by solving a sparse $N \times N$ 
-    eigenvector problem whose bottom d non-zero eigenvectors provide
+    eigenvector problem whose bottom $d$ non-zero eigenvectors provide
     an ordered set of orthogonal coordinates centered on the origin.
 \end{itemize}
 
@@ -410,7 +410,7 @@ simpler to implement approach: a greedy algorithm.
 
 \section{An explanation of the algorithm}
 
-Throughout we will assume that \textbf{X} lies on the hypersphere. 
+Throughout we will assume that $\textbf{X}$ lies on the hypersphere. 
 To find our principal flow, we first need a starting point. Since our principal flow 
 follows the path of maximal variation of our data, 
 we know it should pass through the centroid of the data. 
