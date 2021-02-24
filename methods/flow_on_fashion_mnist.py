@@ -25,7 +25,7 @@ from centroid_finder import sphere_centroid_finder_vecs
 
 # Constants #
 
-DIGIT = 5
+DIGIT = 7
 SAMPLES = 2000
 
 # Data #
@@ -67,10 +67,10 @@ final_p_img = final_p.reshape(28, 28)
 plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
 plt.show()
 
-h = choose_h_gaussian(sampled_X_on_sphere, final_p, 85) # needs to be very high!
-radius = choose_h_binary(sampled_X_on_sphere, final_p, 40)
+h = choose_h_binary(sampled_X_on_sphere, final_p, 30) # needs to be very high!
+radius = choose_h_binary(sampled_X_on_sphere, final_p, 30)
 upper, curve, lower = principal_boundary(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, radius, \
-    start_point=final_p, kernel_type="gaussian", max_iter=40)
+    start_point=final_p, kernel_type="binary", max_iter=40)
 
 print("upper")
 for j in range(6):

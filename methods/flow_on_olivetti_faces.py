@@ -20,10 +20,8 @@ Credit to AT&T Laboratories Cambridge for images
 
 # Constants #
 
-SAMPLES = 200
+SAMPLES = 400
 
-os.chdir("..")
-print(os.path.abspath(os.curdir))
 PATH = os.path.abspath(os.curdir) + "\\olivetti_faces"
 X = np.load('olivetti_faces/olivetti_faces.npy') # shape = (400, 64, 64)
 m = X.shape[1]
@@ -51,10 +49,10 @@ final_p_img = final_p.reshape(m, n)
 plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
 plt.show()
 
-h = choose_h_gaussian(sampled_X_on_sphere, final_p, 85) # needs to be very high!
+h = choose_h_binary(sampled_X_on_sphere, final_p, 30) # needs to be very high!
 curve = principal_flow(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, \
-    flow_num=1, start_point=final_p, kernel_type="gaussian", max_iter=20)
-for j in range(3):
+    flow_num=1, start_point=final_p, kernel_type="binary", max_iter=40)
+for j in range(6):
     for i in range(9):
         plt.subplot(330 + 1 + i)
         plt.imshow(curve[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))

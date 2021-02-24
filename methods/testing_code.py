@@ -465,7 +465,7 @@ def testing_boundary_flow_noisy():
     final_p = sphere_centroid_finder_vecs(noisy_data, 3, 0.05, 0.01)
     #print(final_p)
     h = choose_h_gaussian(noisy_data, final_p, 50) # needs to be very high! # needs to be very high!
-    radius = choose_h_binary(noisy_data, final_p,30)
+    radius = choose_h_binary(noisy_data, final_p, 40)
     upper, curve, lower = principal_boundary(noisy_data, 3, 0.02, h, radius, start_point=final_p, kernel_type="gaussian", max_iter=10)
     #print(curve)
     x_upper, y_upper, z_upper = upper.T
@@ -489,9 +489,7 @@ def testing_boundary_flow_noisy():
     plt.show()
 
 print(os.path.abspath(os.curdir))
-os.chdir("..")
-print(os.path.abspath(os.curdir))
-#testing_boundary_flow_noisy()
+testing_boundary_flow_noisy()
 
 def testing_boundary_flow_noisy_parallel():
     data = pd.read_csv('Sample_Data/data13.csv')
