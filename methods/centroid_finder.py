@@ -195,15 +195,18 @@ def sphere_centroid_finder_vecs(data, dimension, epsilon, tol, debugging=False, 
 
     num_iter = 0
     while True:
+        print(num_iter)
         num_iter += 1
         plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
         eig_values, principal_direction = compute_principal_component_vecs(plane_vectors, p)
         p_prime_plane = p + epsilon * principal_direction
         p_prime = exp_map_sphere(p, p_prime_plane - p)
         p = p_prime
+        '''
         if test_eig_diff(eig_values, tol):
             # gap between eigenvalues are v small
             break
+        '''
         if num_iter > max_iter:
             break
         '''

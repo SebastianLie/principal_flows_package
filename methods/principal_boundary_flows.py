@@ -77,6 +77,7 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
     p_opp = p
     num_iter = 0
     while True:
+        print(num_iter)
         num_iter += 1
         if num_iter == 1:
             weights = kernel(h, data, p)

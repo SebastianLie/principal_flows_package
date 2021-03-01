@@ -325,6 +325,7 @@ def principal_flow(data, dimension, epsilon, h, flow_num=1, start_point=None, \
     p_opp = p
     num_iter = 0
     while True:
+        print(num_iter)
         num_iter += 1
         if num_iter == 1:
             weights = kernel(h, points_on_sphere, p)
