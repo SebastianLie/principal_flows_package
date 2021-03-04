@@ -31,11 +31,6 @@ image_vector_size = m * n
 X = X.reshape(X.shape[0], image_vector_size)
 
 # X.shape = (....,784)
-np.random.seed(4199)
-train_samples = np.random.choice(X.shape[0], size=SAMPLES)
-# print(train_samples)
-sampled_X = X[train_samples]
-
 '''
 for j in range(40):
     for i in range(9):
@@ -45,7 +40,7 @@ for j in range(40):
 '''
 
 # sampled_X.shape = (100,784)
-sampled_X_on_sphere = put_on_sphere(sampled_X)
+sampled_X_on_sphere = put_on_sphere(X)
 final_p = sphere_centroid_finder_vecs(sampled_X_on_sphere, sampled_X.shape[1], 0.05, 0.01,max_iter=200)
 
 # Show "centroid image" obtained #
@@ -53,8 +48,8 @@ final_p_img = final_p.reshape(m, n)
 plt.imshow(final_p_img, cmap=plt.get_cmap('gray'))
 plt.show()
 
-h = choose_h_binary(sampled_X_on_sphere, final_p, 30) # needs to be very high!
-curve = principal_flow(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, \
+h = choose_h_binary(sampled_X_on_sphere, final_p, 40) # needs to be very high!
+curve = principal_flow(sampled_X_on_sphere, sampled_X.shape[1], 0.01, h, \
     flow_num=1, start_point=final_p, kernel_type="binary", max_iter=20)
 for j in range(4):
     for i in range(9):

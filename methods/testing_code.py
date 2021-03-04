@@ -280,7 +280,7 @@ def testing_flow_noisy():
     data_np = data_np.T[1:]
     noisy_data = noising_data(data_np, 0.01)
     noisy_data = put_on_sphere(noisy_data)
-    random.seed(999)
+    np.random.seed(999)
     final_p = sphere_centroid_finder_vecs(noisy_data, 3, 0.05, 0.01)
     #print(final_p)
     h = choose_h_gaussian(noisy_data, final_p, 75) # needs to be very high! # needs to be very high!
@@ -488,8 +488,8 @@ def testing_boundary_flow_noisy():
 
     plt.show()
 
-print(os.path.abspath(os.curdir))
-testing_boundary_flow_noisy()
+#print(os.path.abspath(os.curdir))
+#testing_boundary_flow_noisy()
 
 def testing_boundary_flow_noisy_parallel():
     data = pd.read_csv('Sample_Data/data13.csv')

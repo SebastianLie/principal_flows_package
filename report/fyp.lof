@@ -1,0 +1,11 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces An example of a vector field, $\mathbb {R}^3$\relax }}{9}{figure.caption.6}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Illustration of a Tangent Space\relax }}{11}{figure.caption.7}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Principal flow, no noise\relax }}{26}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Principal flow, noisy data\relax }}{27}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Boundary Flow on noisy data\relax }}{28}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces MNIST Flows, from left to right.\relax }}{29}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Flow for Olivetti face data, from left to right.\relax }}{30}{figure.caption.19}%
