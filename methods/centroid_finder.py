@@ -215,6 +215,64 @@ def sphere_centroid_finder_vecs(data, dimension, epsilon, tol, debugging=False, 
         '''
     return p
 
+def sphere_centroid_finder_vecs_print(data, dimension, epsilon, tol, debugging=False, max_iter=30):
+    """Central Algorithm of this file.
+    Works!
+    Idea: 
+    1. Takes in the data, then chooses the first point in the dataset as the 
+    pseudo-center, p.
+    2. Calculate the log map of p on these points, to obtain the vectors residing on the plane 
+    tangent to the sphere at p and put them into a matrix, X.
+    3. Find the eigen vector (principal component) of the matrix X using the method above (SVD on X) with the largest 
+    eigen value(largest portion of explained variance).
+    4. Move a small step (epsilon) in the direction of the principal component from p.
+    5. Project this point back on the sphere w the exp map.
+    6. Call this the new p. 
+    7. Repeat until max iter is hit or until gaps between eigen values become smaller than the tolerance.
+
+    Args:
+        data (np.array,(n,p)): the data we want to find the centroid for.
+        epsilon (float): step size that we travel in each iteration. 
+        tol ([type]): [description]
+        debugging (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """    
+    phi = np.linspace(0, np.pi, 20)
+    theta = np.linspace(0, 2 * np.pi, 40)
+    x = np.outer(np.sin(theta), np.cos(phi))
+    y = np.outer(np.sin(theta), np.sin(phi))
+    z = np.outer(np.cos(theta), np.ones_like(phi))
+    # choose p, and get the array of points that exclude p.
+    data = np.array(data)
+    if data.shape[1] != dimension:
+        data = data.T
+    points_on_sphere = data
+    p_index =  0
+    p = points_on_sphere[p_index]
+
+    num_iter = 0
+    while True:
+        print(num_iter)
+        num_iter += 1
+        plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), points_on_sphere)))
+        eig_values, principal_direction = compute_principal_component_vecs(plane_vectors, p)
+        p_prime_plane = p + epsilon * principal_direction
+        p_prime = exp_map_sphere(p, p_prime_plane - p)
+        p = p_prime
+
+        fig, ax = plt.subplots(1, 1, subplot_kw={'projection':'3d'})
+        ax.plot_surface(x, y, z, color='k', rstride=1, cstride=1, alpha=0.1) # alpha affects transparency of the plot        
+        xx, yy, zz = data.T
+        ax.scatter(xx, yy, zz, color="k", s=50)
+        ax.scatter(p[0], p[1], p[2], color="r", s=50)
+        ax.view_init(elev=40., azim=90)
+        plt.savefig("centroid_pics/{}.".format(num_iter))
+        #plt.show()
+        if num_iter > max_iter:
+            break
+    return p
 
 def sphere_centroid_finder_no_pca(epsilon, tol, num_points=4,debugging=False): # works!!
     """takes adv of the fact that sum of plane vectors at mean will equal 0.

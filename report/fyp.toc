@@ -1,31 +1,38 @@
-\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Motivation}{6}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Notation}{8}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Definitions}{9}{section.1.3}%
-\contentsline {subsection}{\numberline {1.3.1}Vector Fields}{9}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Logarithm Maps}{10}{subsection.1.3.2}%
-\contentsline {subsection}{\numberline {1.3.3}Tangent Space}{10}{subsection.1.3.3}%
-\contentsline {subsection}{\numberline {1.3.4}Geodesics}{11}{subsection.1.3.4}%
-\contentsline {subsection}{\numberline {1.3.5}Eigenvalues and Eigenvectors}{11}{subsection.1.3.5}%
-\contentsline {subsection}{\numberline {1.3.6}Diagonalisation}{11}{subsection.1.3.6}%
-\contentsline {chapter}{\numberline {2}Literature Review}{13}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Linear Dimension Reduction}{13}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}Principal Component Analysis}{13}{subsection.2.1.1}%
-\contentsline {subsection}{\numberline {2.1.2}Classical MDS, Euclidean Distance}{14}{subsection.2.1.2}%
-\contentsline {section}{\numberline {2.2}Non-Linear Dimension Reduction}{15}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}Isomap}{16}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Locally Linear Embeddding}{17}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}Principal Geodesic Analysis}{18}{subsection.2.2.3}%
-\contentsline {chapter}{\numberline {3}Greedy Principal Flows}{20}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Goal Of Research}{20}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Centroid Algorithm}{21}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Algorithm}{21}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Extension: Greedy Principal Boundary}{24}{section.3.4}%
-\contentsline {chapter}{\numberline {4}Applications}{25}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Toy Data}{25}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Without Noise}{25}{subsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.1.2}With Noise}{26}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}Boundary Flow with Noise}{27}{subsection.4.1.3}%
-\contentsline {section}{\numberline {4.2}Real World Data}{27}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}MNIST}{28}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Olivetti faces}{30}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {1}Introduction}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivation}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Notation}{9}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Definitions}{10}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Vector Fields}{10}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Geodesics}{11}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Exponential Maps}{11}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.3.4}Tangent Space}{13}{subsection.1.3.4}%
+\contentsline {subsection}{\numberline {1.3.5}Eigenvalues and Eigenvectors}{14}{subsection.1.3.5}%
+\contentsline {subsection}{\numberline {1.3.6}Diagonalisation}{14}{subsection.1.3.6}%
+\contentsline {chapter}{\numberline {2}Literature Review}{15}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Linear Dimension Reduction}{15}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Principal Component Analysis}{15}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Classical MDS, Euclidean Distance}{16}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Non-Linear Dimension Reduction}{18}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Isomap}{19}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Locally Linear Embeddding}{21}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Principal Geodesic Analysis}{22}{subsection.2.2.3}%
+\contentsline {chapter}{\numberline {3}Greedy Principal Flows}{24}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Goal Of Research}{24}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Centroid Algorithm}{25}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Algorithm}{26}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Extension: Greedy Principal Boundary}{31}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Applications}{33}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Toy Data}{33}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Without Noise}{33}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}With Noise}{34}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Boundary Flow with Noise}{35}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}Real World Data}{37}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}MNIST}{37}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Olivetti faces}{39}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {5}Future Directions}{41}{chapter.5}%
+\contentsline {chapter}{Bibliography}{41}{chapter.5}%
+\contentsline {chapter}{Appendices}{43}{section*.33}%
+\contentsline {chapter}{\numberline {A}Extra Results from the Principal Flow}{44}{appendix.a.A}%
+\contentsline {section}{\numberline {A.1}Fashion MNIST}{44}{section.a.A.1}%
+\contentsline {section}{\numberline {A.2}Cartoon Faces}{45}{section.a.A.2}%
+\contentsline {section}{\numberline {A.3}Faces in the Wild}{46}{section.a.A.3}%

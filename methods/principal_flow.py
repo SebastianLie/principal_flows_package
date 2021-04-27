@@ -27,7 +27,7 @@ def choose_h_binary(points, p, percent=20):
         [float]: [h value to use.]
     """    
     distances = sorted(get_pairwise_distances(points, p))
-    index = math.ceil(len(points)*percent/100)
+    index = math.ceil((len(points)-1)*percent/100)
     print(index)
     return distances[index]
 

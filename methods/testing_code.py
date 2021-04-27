@@ -531,6 +531,14 @@ def testing_boundary_flow_noisy_parallel():
 #mnist_flow(3)
 #noisy_image_flow()
 
+data = pd.read_csv('Sample_Data/data13.csv')
+data_np = data.to_numpy()
+
+data_np = (data_np.T[1:]).T
+random.seed(999)
+
+final_p = sphere_centroid_finder_vecs_print(data_np, 3, 0.05, 0.01)
+
 def read_images_animals():
     images = np.load("dogs_images_grayscale.npy")
     print(images[0])
@@ -539,7 +547,7 @@ def read_images_animals():
         plt.imshow(images[i], cmap=plt.get_cmap('gray'))
     plt.show()
 
-read_images_animals()
+#read_images_animals()
 
 '''
 ps, p_prime = algorithm_alt(0.05, 0.1,debugging=True)

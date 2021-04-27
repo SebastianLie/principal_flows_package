@@ -1,11 +1,27 @@
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces An example of a vector field, $\mathbb {R}^3$\relax }}{9}{figure.caption.6}%
-\contentsline {figure}{\numberline {1.2}{\ignorespaces Illustration of a Tangent Space\relax }}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {1.1}{\ignorespaces An example of a vector field, $\mathbb {R}^3$\relax }}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Geodesic between $P$ and $Q$ in red on a sphere in $\mathbb {R}^3$\relax }}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Illustration of the exponential map for the three dimensional sphere\relax }}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Illustration of the log map for the three dimensional sphere\relax }}{12}{figure.caption.9}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Illustration of the tangent space for the three dimensional sphere\relax }}{13}{figure.caption.10}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces PCA in 2 dimensions: data in blue, principal direction as the black line, red points as the first and only PC\relax }}{16}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Results from Multidimensional Scaling\relax }}{17}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Isomap: A the dotted-line distance ``short circuits" the manifold , The solid red path in B does not.\relax }}{19}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Illustration of Locally Linear Embedding Procedure\relax }}{22}{figure.caption.17}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces An illustration of PGA directions in tangent space approximating principal geodesics\relax }}{23}{figure.caption.19}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The principal flow as a vector field, with the flow in red.\relax }}{25}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Illustration of the Greedy Princpal flow algorithm. The first four steps cover the first iteration, while five and six cover the i-th iterations.\relax }}{29}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Principal Boundary in green around the data in blue for the three dimensional sphere\relax }}{31}{figure.caption.25}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Principal flow, no noise\relax }}{34}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Principal flow, noisy data, both kernels run with similar $h$\relax }}{35}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Boundary Flow on noisy data\relax }}{35}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces MNIST Flows, from left to right.\relax }}{38}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Flow for Olivetti face data, from left to right.\relax }}{39}{figure.caption.31}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Principal flow, no noise\relax }}{26}{figure.caption.15}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Principal flow, noisy data\relax }}{27}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Boundary Flow on noisy data\relax }}{28}{figure.caption.17}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces MNIST Flows, from left to right.\relax }}{29}{figure.caption.18}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Flow for Olivetti face data, from left to right.\relax }}{30}{figure.caption.19}%
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Fasion MNIST Flows, from left to right.\relax }}{44}{figure.caption.34}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Cartoon face Flows, from left to right.\relax }}{45}{figure.caption.35}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces Faces in the wild flow, from left to right.\relax }}{46}{figure.caption.36}%

@@ -26,14 +26,6 @@ train_X = data.reshape(data.shape[0], image_vector_size)
 train_samples = np.random.choice(train_X.shape[0], size=SAMPLES)
 sampled_X = train_X[train_samples]
 
-# Sampled Images #
-'''
-for i in range(9):
-    plt.subplot(330 + 1 + i)
-    plt.imshow(sampled_X[i].reshape(m, n), cmap=plt.get_cmap('gray'))
-plt.show()
-'''
-
 sampled_X_on_sphere = put_on_sphere(sampled_X)
 # print(sampled_X_on_sphere[0])
 
@@ -58,6 +50,8 @@ for j in range(6):
         plt.imshow(curve[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
     plt.show()
 np.save(os.path.abspath(os.curdir)+'\\data\\cartoon_grayscale_30_flow.npy', curve)
+
+
 '''
 upper, curve, lower = principal_boundary(sampled_X_on_sphere, sampled_X.shape[1], 0.02, h, radius, \
     start_point=final_p, kernel_type="binary", max_iter=30)
@@ -68,7 +62,6 @@ for j in range(6):
         plt.subplot(330 + 1 + i)
         plt.imshow(upper[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
     plt.show()
-
 print("curve")
 for j in range(6):
     for i in range(9):
@@ -81,4 +74,17 @@ for j in range(6):
         plt.subplot(330 + 1 + i)
         plt.imshow(lower[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
     plt.show()
+
+
+os.chdir("..")
+curve = np.load(os.path.abspath(os.curdir)+'\\data\\cartoon_grayscale_30_flow.npy')
+data = np.load("data/cartoon_faces_grayscale_50.npy")
+m = data.shape[1]
+n = data.shape[2]
+for j in range(6):
+    for i in range(9):
+        img = curve[i + 9*j].reshape(m, n)
+        img_smoothed = cv2.resize(img, (100, 100), interpolation = cv2.INTER_AREA)
+        plt.imshow(img_smoothed, cmap=plt.get_cmap('gray'))
+        plt.savefig("cartoon_faces/{}.".format(i + 9*j))
 '''

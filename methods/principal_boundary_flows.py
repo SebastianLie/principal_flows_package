@@ -130,7 +130,7 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
 
         else:
             # calculate for one direction, then the other 
-            weights = kernel(h,data, p)
+            weights = kernel(h, data, p)
             plane_vectors = np.array(list(map(lambda point: log_map_sphere(p, point), data)))
             past_direction = principal_direction
             try:

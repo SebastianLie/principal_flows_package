@@ -13,7 +13,7 @@ for subdir, dirs, files in os.walk(directory_in_str):
     for file in files:
         filename = os.path.join(subdir, file)
         img = cv2.imread(filename, 0)
-        sub_img = cv2.resize(img, (50, 50), interpolation = cv2.INTER_AREA)
+        sub_img = cv2.resize(img, (75, 75), interpolation = cv2.INTER_AREA)
         if i == 1:
             cv2.imshow('image', sub_img)
             cv2.waitKey(0)
@@ -26,5 +26,5 @@ for subdir, dirs, files in os.walk(directory_in_str):
 images_np = np.array(images)
 print(images_np[0].shape)
 print(images_np.shape)
-np.save(os.path.abspath(os.curdir)+'\\data\\lfw_grayscale_50.npy', images_np)
+np.save(os.path.abspath(os.curdir)+'\\data\\lfw_grayscale_75.npy', images_np)
 
