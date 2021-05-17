@@ -1,6 +1,14 @@
+"""Principal Boundary Flows 
+This method implements the principal boundary algorithm using the same
+greedy approach we used for the main principal flow algorithm file.
+
+
+Returns:
+    [type]: [description]
+"""
 import math
 import numpy as np
-from principal_flow import compute_principal_component_vecs_weighted, \
+from principal_flow_main import compute_principal_component_vecs_weighted, \
     binary_kernel, gaussian_kernel, identity_kernel
 from common_methods_sphere import log_map_sphere, exp_map_sphere, angle
 from centroid_finder import sphere_centroid_finder_vecs
@@ -18,9 +26,7 @@ def principal_boundary(data, dimension, epsilon, h, radius, start_point=None, \
     Idea: This is a "greedy" implmentation of the principal boundary
     algorithm, developed originally by Professor Yao Zhi Gang.
     
-    It uses the greedy version of the pricipal flow algorithm.
-
-    Note: seems to work now!
+    Implements parallel transport using schilds ladder.
 
     Args:
         data (np.array, (n,p)): [The data set, of shape (n,p), n = number of data points, p = dimension.]

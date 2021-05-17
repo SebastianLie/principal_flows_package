@@ -1,8 +1,18 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+
+# fix path for sys
+import os
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
 from common_methods_sphere import *
-from principal_flow import *
+from principal_flow_main import *
 from principal_flow_for_print import *
 from principal_boundary_flows import principal_boundary
 from centroid_finder import *

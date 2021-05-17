@@ -1,29 +1,40 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+# fix path for sys
 import os
-from common_methods_sphere import *
-from principal_flow import *
-from centroid_finder import *
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
+from common_methods_sphere import put_on_sphere
+from principal_flow_main import principal_flow, choose_h_binary
+from centroid_finder import sphere_centroid_finder_vecs
+
 
 '''
 As described on the original website:
 
-There are ten different images of each of 40 distinct subjects. For some subjects, the images were taken at different times, varying the lighting, facial expressions (open / closed eyes, smiling / not smiling) and facial details (glasses / no glasses). All the images were taken against a dark homogeneous background with the subjects in an upright, frontal position (with tolerance for some side movement).
-The image is quantized to 256 grey levels and stored as unsigned 8-bit integers; the loader will convert these to floating point values on the interval [0, 1], which are easier to work with for many algorithms.
+There are ten different images of each of 40 distinct subjects. For some subjects, the images were taken at different times, 
+varying the lighting, facial expressions (open / closed eyes, smiling / not smiling) and facial details (glasses / no glasses). 
+All the images were taken against a dark homogeneous background with the subjects in an upright, frontal position (with tolerance for some side movement).
+The image is quantized to 256 grey levels and stored as unsigned 8-bit integers; 
+the loader will convert these to floating point values on the interval [0, 1], which are easier to work with for many algorithms.
 
-The “target” for this database is an integer from 0 to 39 indicating the identity of the person pictured; however, with only 10 examples per class, this relatively small dataset is more interesting from an unsupervised or semi-supervised perspective.
+The “target” for this database is an integer from 0 to 39 indicating the identity of the person pictured; 
+however, with only 10 examples per class, this relatively small dataset is more interesting from an unsupervised or semi-supervised perspective.
 
 The original dataset consisted of 92 x 112, while the version available here consists of 64x64 images.
 
 Credit to AT&T Laboratories Cambridge for images
 '''
 
-# Constants #
+# Load Data
 
-SAMPLES = 400
-
-PATH = os.path.abspath(os.curdir) + "\\olivetti_faces"
-X = np.load('olivetti_faces/olivetti_faces.npy') # shape = (400, 64, 64)
+os.chdir('..') # navigate to folder above root to get to data
+X = np.load('data\\image_data\\olivetti_faces\\olivetti_faces.npy') # shape = (400, 64, 64)
 m = X.shape[1]
 n = X.shape[2]
 
@@ -32,6 +43,7 @@ X = X.reshape(X.shape[0], image_vector_size)
 
 # X.shape = (....,784)
 '''
+# print all images
 for j in range(40):
     for i in range(9):
         plt.subplot(330 + 1 + i)
@@ -39,7 +51,6 @@ for j in range(40):
     plt.show()
 '''
 
-# sampled_X.shape = (100,784)
 sampled_X_on_sphere = put_on_sphere(X)
 final_p = sphere_centroid_finder_vecs(sampled_X_on_sphere, X.shape[1], 0.05, 0.01,max_iter=200)
 
@@ -51,10 +62,10 @@ plt.show()
 h = choose_h_binary(sampled_X_on_sphere, final_p, 30) # needs to be very high!
 curve = principal_flow(sampled_X_on_sphere, X.shape[1], 0.01, h, \
     flow_num=1, start_point=final_p, kernel_type="binary", max_iter=20)
-counter 
+
 for j in range(4):
     for i in range(9):
-        #plt.subplot(330 + 1 + i)
+        plt.subplot(330 + 1 + i)
         plt.imshow(curve[i + 9*j].reshape(m, n), cmap=plt.get_cmap('gray'))
-        plt.savefig("olivetti_faces_pics/{}.".format(i + 9*j))
-    #plt.show()
+        #plt.savefig("olivetti_faces_pics/{}.".format(i + 9*j))
+    plt.show()

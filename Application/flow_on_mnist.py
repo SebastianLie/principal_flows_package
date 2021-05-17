@@ -2,8 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
 import cv2
+
+# fix path for sys
+import os
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
 from common_methods_sphere import put_on_sphere
-from principal_flow import choose_h_gaussian, principal_flow,choose_h_binary
+from principal_flow_main import choose_h_gaussian, principal_flow,choose_h_binary
 from centroid_finder import sphere_centroid_finder_vecs
 from principal_boundary_flows import principal_boundary
 
@@ -14,7 +23,7 @@ from principal_boundary_flows import principal_boundary
 # Constants #
 
 DIGIT = 3
-SAMPLES = 1000
+SAMPLES = 100
 
 # Data #
 
@@ -72,7 +81,7 @@ for j in range(6):
         img = curve[i + 9*j].reshape(28, 28)
         img_smoothed = cv2.resize(img, (100, 100), interpolation = cv2.INTER_AREA)
         plt.imshow(img_smoothed, cmap=plt.get_cmap('gray'))
-        plt.savefig("mnist_pics/{}.".format(i + 9*j))
+        #plt.savefig("mnist_pics/{}.".format(i + 9*j))
 
 '''
 print("upper")

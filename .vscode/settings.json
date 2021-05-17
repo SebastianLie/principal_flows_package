@@ -1,4 +1,16 @@
 {
-    "python.pythonPath": "C:\\Users\\65962\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+    "python.pythonPath": "C:\\Users\\65962\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
+    "python.linting.flake8Enabled": false,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.autoComplete.extraPaths": ["./Methods"],
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.insert(0, './Methods')",
+        "--generate-members"
+    ],
+    "python.analysis.extraPaths": [
+        "./Methods"
+    ]
     
 }

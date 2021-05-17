@@ -1,17 +1,25 @@
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+
+# fix path for sys
 import os
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
 from common_methods_sphere import put_on_sphere
-from principal_flow import choose_h_gaussian, principal_flow, choose_h_binary
+from principal_flow_main import choose_h_gaussian, principal_flow, choose_h_binary
 from principal_boundary_flows import principal_boundary
 from centroid_finder import sphere_centroid_finder_vecs
-import matplotlib.pyplot as plt
 
 SAMPLES = 2000
 
-os.chdir("..")
-data = np.load("data/lfw_grayscale_75.npy")
-print(data.shape)
+os.chdir('..') # navigate to folder above root to get to data
+data = np.load('data\\processed_data\\lfw_created\\lfw_grayscale_75.npy') # shape = (13233, 75, 75)
+
 cv2.imshow('image', data[0])
 cv2.waitKey(0)
 cv2.destroyAllWindows()

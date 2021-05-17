@@ -1,9 +1,17 @@
 import numpy as np
 import pandas as pd
-import os
+
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 from mpl_toolkits.mplot3d import Axes3D
+# fix path for sys
+import os
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
 from common_methods_sphere import put_on_sphere
 
 # https://stackoverflow.com/questions/10473852/convert-latitude-and-longitude-to-point-in-3d-space

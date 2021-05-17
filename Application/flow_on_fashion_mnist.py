@@ -1,11 +1,20 @@
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import fashion_mnist
+
+# fix path for sys
+import os
+import sys
+
+# very important to load methods
+os.chdir('.') # go to root dir
+sys.path.append(os.getcwd() + '\\Methods')
+
 from common_methods_sphere import put_on_sphere
-from principal_flow import choose_h_gaussian, principal_flow, choose_h_binary
+from principal_flow_main import choose_h_gaussian, principal_flow, choose_h_binary
 from principal_boundary_flows import principal_boundary
 from centroid_finder import sphere_centroid_finder_vecs
-import cv2
 
 '''
 0	T-shirt/top

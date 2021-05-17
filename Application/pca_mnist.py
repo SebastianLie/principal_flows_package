@@ -3,11 +3,7 @@ from sklearn.decomposition import PCA
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
-import cv2
-from common_methods_sphere import put_on_sphere
-from principal_flow import choose_h_gaussian, principal_flow,choose_h_binary
-from centroid_finder import sphere_centroid_finder_vecs
-from principal_boundary_flows import principal_boundary
+
 
 # Program to run principal flow on MNIST data.
 # Choose the digit,and the number of samples for the data

@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 import scipy
 from scipy.stats import norm
-from common_methods_sphere import log_map_sphere, exp_map_sphere
-from common_methods_sphere import spherical_to_cartesian, generate_square, test_eig_diff
-from common_methods_sphere import get_pairwise_distances, angle
+from common_methods_sphere import log_map_sphere, exp_map_sphere,\
+    spherical_to_cartesian, generate_square, test_eig_diff, \
+    get_pairwise_distances, angle
 from centroid_finder import compute_principal_component_vecs, sphere_centroid_finder_vecs
 
 ##################
@@ -115,7 +115,7 @@ def new_gaussian(x, centroid, h) -> float:
     return exp_part
 
 
-def gaussian_kernel(h, data, centroid) -> "1d numpy array":
+def gaussian_kernel(h, data, centroid):
     """Weights each point with a 1D gaussian 
     centered around the centroid that has h standard deviation.
 
@@ -228,7 +228,6 @@ def compute_principal_component_vecs_weighted(vectors, p, weights, component=1, 
     # we were only supposed to compare the 1st element!!
     # solution: force sorted to only use the 1st element (key=lambda x: x[0]), 
     # after all we only need the largest.
-    # TODO: find better way to get eig vec of largest associated eig value
     eig_tuples = sorted(eig_tuples, reverse=True, key=lambda x: x[0])
     if boundary == True:
         # use for principal boundary
